@@ -1,0 +1,17 @@
+E:\Borrar\NTTBlock\NTTBlock\bin\Release\NTTBlock.exe
+E:\Borrar\NTTBlock\NTTBlock\bin\Release\NTTBlock.exe.config
+E:\Borrar\NTTBlock\NTTBlock\bin\Release\NTTBlock.exe.manifest
+E:\Borrar\NTTBlock\NTTBlock\bin\Release\NTTBlock.application
+E:\Borrar\NTTBlock\NTTBlock\bin\Release\Microsoft.ApplicationBlocks.Data.dll
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.vbproj.ResolveComReference.cache
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.Form1.resources
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.Resources.resources
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.vbproj.GenerateResource.Cache
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.exe.manifest
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.application
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.exe
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.xml
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.pdb
+E:\Borrar\NTTBlock\NTTBlock\bin\Release\NTTBlock.pdb
+E:\Borrar\NTTBlock\NTTBlock\bin\Release\NTTBlock.xml
+E:\Borrar\NTTBlock\NTTBlock\obj\x86\Release\NTTBlock.vbprojResolveAssemblyReference.cache

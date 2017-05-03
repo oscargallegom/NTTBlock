@@ -1,0 +1,279 @@
+ FSITE    SITE.DAT                                                                        
+ FSUBA    SUBA.DAT                                                                        
+  FWPM    WPM1.DAT                                                                        
+ FWIND    WIND.DAT                                                                        
+ FCROP    CROP.dat                                                                        
+ FTILL    TILL.DAT                                                                        
+ FPEST    PEST.DAT                                                                        
+ FFERT    FERT.dat                                                                        
+ FSOIL    SOIL.DAT                                                                        
+ FOPSC    OPCS.DAT                                                                        
+ FTR55    TR55.DAT                                                                        
+ FPARM    PARM.dat                                                                        
+ FMLRN    MLRN.DAT                                                                        
+ FPRNT    PRNT.DAT                                                                        
+ FHERD    HERD.DAT                                                                        
+ FWLST    WLST.DAT                                                                        
+ FPSOD    PSOD.DAT                                                                        
+ FRFDT    RFDT.DAT                                                                        
+1
+    APEX0806  2017   4  12  15:46:40
+          RUN #    1
+                                                                                          
+                                                                                          
+                                                                                          
+
+ -----MISCELLANEOUS PARAMETERS
+
+         PARM         SCRP1I    SCRP2I    SCRP1C       SCRP2C
+    1  0.20000E+01    90.050    99.950  0.65379E+02  0.64372E+00
+    2  0.20000E+01    10.500   100.950  0.23739E+01  0.71310E-02
+    3  0.50000E+00    50.100    95.950  0.11109E+02  0.99995E-01
+    4  0.10000E+01     0.000     0.000  0.00000E+00  0.00000E+00
+    5  0.50000E+00    25.050    75.900  0.81849E+01  0.80862E-01
+    6  0.10000E+01     5.100   100.950  0.39196E+01  0.22588E-01
+    7  0.90000E+00     5.250    50.950  0.29014E+01  0.38677E-01
+    8  0.20000E+02    20.500    80.990  0.40653E+01  0.53477E-01
+    9  0.20000E+02     1.100    10.990  0.26961E+01  0.49886E+00
+   10  0.20000E+02    10.050   100.900  0.55625E+01  0.31545E-01
+   11 -0.10000E+03     5.010    20.900  0.80065E+01  0.36040E+00
+   12  0.25000E+01     5.050   100.500  0.45512E+01 -0.53997E-03
+   13  0.20000E+01     1.800     3.990 -0.33119E+00  0.10551E+01
+   14  0.20000E+00     5.100    20.950  0.50585E+01  0.25036E+00
+   15  0.50000E-01    10.100   100.950  0.48153E+01  0.31545E-01
+   16  0.10000E+01     3.100    20.990  0.41597E+01  0.28795E+00
+   17  0.25000E+00    20.100    50.950  0.80099E+01  0.14085E+00
+   18  0.10000E+01     5.100    50.300  0.37008E+01 -0.21170E-01
+   19  0.50000E-01    10.010    25.950  0.11313E+02  0.44155E+00
+   20  0.20000E+00   400.050   600.800  0.16787E+02  0.19627E-01
+   21  0.10000E+02    10.500   100.900  0.22909E+01 -0.11705E-02
+   22  0.50000E-01   100.010  1000.900  0.96989E+01  0.49887E-02
+   23  0.28000E-02     1.500     3.990  0.17483E+01  0.17483E+01
+   24  0.10000E+00     1.250     5.950  0.17070E+01  0.60840E+00
+   25  0.00000E+00    50.100    55.900  0.49101E+02  0.85983E+00
+   26  0.50000E-01     0.000     0.000  0.00000E+00  0.00000E+00
+   27  0.30000E+00     0.000     0.000  0.00000E+00  0.00000E+00
+   28  0.50000E+01     0.000     0.000  0.00000E+00  0.00000E+00
+   29  0.25000E+00     0.000     0.000  0.00000E+00  0.00000E+00
+   30  0.14000E+01    50.000    10.000  0.50000E+02  0.10000E+02
+   26  0.50000E-01
+   27  0.30000E+00
+   28  0.50000E+01
+   29  0.25000E+00
+   30  0.14000E+01
+   31  0.30000E+00
+   32  0.12500E+01
+   33  0.20000E+01
+   34  0.48000E+00
+   35  0.10100E+01
+   36  0.10000E-02
+   37  0.70000E+00
+   38  0.10000E+01
+   39  0.10000E-04
+   40  0.10000E-02
+   41  0.50000E+00
+   42  0.18000E+01
+   43  0.50800E-01
+   44  0.15000E+01
+   45  0.30000E+01
+   46  0.50000E+00
+   47  0.10000E+01
+   48  0.00000E+00
+   49  0.50000E+01
+   50  0.10000E+00
+   51  0.50000E+00
+   52  0.10000E+02
+   53  0.90000E+00
+   54  0.78000E+00
+   55  0.24680E+00
+   56  0.90000E+00
+   57  0.78000E+00
+   58  0.24680E+00
+   59  0.10000E+01
+   60  0.50000E+01
+   61  0.80000E+00
+   62  0.10000E+00
+   63  0.10000E+00
+   64  0.10000E+01
+   65  0.10000E-02
+   66  0.10000E+01
+   67  0.10000E+02
+   68  0.25000E+00
+   69  0.10000E+01
+   70  0.10000E+01
+   71  0.11500E+01
+   72  0.30000E+00
+   73  0.20000E+00
+   74  0.10000E+00
+   75  0.50000E-01
+   76  0.30000E-02
+   77  0.00000E+00
+   78  0.10000E+01
+   79  0.10000E+01
+   80  0.10000E+01
+   81  0.00000E+00
+   82  0.00000E+00
+   83  0.10000E-01
+   84  0.10000E-03
+   85  0.10000E-03
+   86  0.10000E+00
+   87  0.10000E-02
+   88  0.10000E-02
+   89  0.10000E+00
+   90  0.20000E+01
+   91  0.10000E+00
+   92  0.10000E+01
+   93  0.10000E+01
+   94  0.10000E+01
+   95  0.10000E+01
+   96  0.10000E+02
+   97  0.95000E+00
+   98  0.45000E+00
+   99  0.50000E+00
+1
+    APEX0806  2017   4  12  15:46:40
+          RUN #    1
+           .sit file Subbasin:1  Date: 5/5/2014 2:19:03 PM                                
+                                                                                          
+                                                                                          
+
+
+ ____________________GENERAL INFORMATION_____________________
+
+
+ -----VARIABLE NAMES
+   1    2    3    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20
+  TMX  TMN SRAD PRCP SNOF SNOM WSPD RHUM  VPD  PET   ET   EP    Q   CN  SSF  PRK  QDR IRGA  QIN TLGE
+ TLGW TLGQ TLGF   EI    C USLE MUSL  AOF MUSS MUST RUS2  WK1 RHTT RRUF RGRF YWND   YN   QN SSFN PRKN
+  GMN   DN NFIX  NMN NITR AVOL QDRN   YP   QP  MNP PRKP   ER  FNO FNMN FNMA  FPO  FPL LIME  TMP SW10
+ LGMI LGMO  EPP RSQI RSQO RSEV RSLK RSYI RSYO RSYD DPRK RSSF RSDC RSPC PRKC   QC   YC RSDA  QFP RSFN
+  MAP BUNL  QRF QRFN RFIC RSBK CPVH YMNU SNOU SPOU DNMO DPMO DEMR P10D SSFI DPKN CPVV  FPF  FOC  RFV
+ SCOU DEPC DECR PSOQ PSON PSOP RUSL  QPU FALF IRDL  QRP  YRP YNRP YPRP QNRP QPRP WYLD  YPM  YPO   SW
+ PSOY PQPS PYPS MUSI   QI QARS RFRA  DN2 SLTI SLTQ SLTS SLTF SLTV YNWN YPWN YCWN PSO3 PSSP YWKS CBUR
+ GRZD QRFP QDRP YTHS YWTH IRRS EVRT
+1
+    APEX0806  2017   4  12  15:46:40
+          RUN #    1
+           .sit file Subbasin:1  Date: 5/5/2014 2:19:03 PM                                
+                                                                                          
+                                                                                          
+
+
+ ____________________GENERAL INFORMATION_____________________
+
+         SIMULATION DURATION =   35 Y
+         BEGINNING DATE =1981 1 1
+         LEAP YEAR CONSIDERED
+         LATITUDE =   39.66 deg
+         LONGITUDE =  -77.09 deg
+         ELEVATION =  1396.0 m
+         LATITUDE =    0.00 deg
+         LONGITUDE = 
+                                       TILE DRAIN EQUATION = APEX EQUATION
+         WATER EROSION FACTORS--DRIVING EQ = MUSL
+         DAILY RUNOFF ESTIMATION
+              NRCS CURVE NUMBER EQ
+              DAILY CN--STOCHASTIC
+         PEAK RATE MOD RATIONAL EQ - STOCHASTIC
+         RUNOFF VOLUME ROUTING
+         EPIC ENRICHMENT RATIO
+         GLEAMS PESTICIDE EQ SOL P RUNOFF
+         N & P UPTAKE CONC SMITH CURVE
+         EPIC O2=F(Z)
+         KEMANIAN DNIT
+         RUSLE SLOPE/LENGTH FACTOR
+         STATIC TECHNOLOGY
+         LAGOON PUMP DATE =    0
+         SOLID MANURE SCRAPE INTERVAL =    0 d
+         PEAK RATE-EI ADJ FACTOR =  1.000
+         AVE N CONC IN RAINFALL =  0.80 ppm
+         CONC OF N IN IRRIGATION WATER =    0.0 ppm
+         MANURE APP FOR P UPTAKE RATE =     0. kg/ha/y
+         MANURE APP FOR N UPTAKE RATE =     0. kg/ha/y
+         MNUL =   0
+         COSTS
+              LIME =   31.00 $/t
+              IRR WATER =    0.04 $/mm
+              FUEL PRICE =    0.51 $/l
+              WAGE PRICE =   0.57 $/h
+         CHANNEL GEOMETRY PARMS
+              WIDTH  =   0.3000  0.5000
+              DEPTH  =   0.0450  0.3330
+              LENGTH =   0.1732  0.5000
+1
+    APEX0806  2017   4  12  15:46:40
+          RUN #    1
+           .sit file Subbasin:1  Date: 5/5/2014 2:19:03 PM                                
+                                                                                          
+                                                                                          
+
+
+ ____________________WEATHER DATA_______________________
+
+         CO2 CONC IN ATMOSPHERE =   365. ppm
+         STATIC ATMOSPHERIC CO2
+         PERIOD OF RECORD FOR P5MX = 10. Y
+
+         ___________HARGREAVES EQ USED TO EST POT ET___________
+
+ -----AVE MO VALUES
+                   WPM1 = CHINAG.WP1            FRACT WSA =  1.000
+          JAN      FEB      MAR      APR      MAY      JUN      JUL      AUG      SEP      OCT      NOV      DEC       YR
+  TMX    10.51    13.41    18.16    23.12    26.72    31.29    34.44    34.48    30.35    24.67    17.44    12.02    23.05   TMX
+  TMN    -1.47     0.67     4.81    10.21    14.63    19.32    21.73    21.06    17.18    11.22     4.72     0.23    10.36   TMN
+ SDMX     7.34     7.12     6.79     4.92     4.02     3.47     3.58     3.74     4.53     5.15     6.06     6.44           SDMX
+ SDMN     6.50     6.01     6.04     5.02     4.02     3.22     2.46     2.81     4.38     5.24     5.69     5.76           SDMN
+ PRCP     44.9     51.0     66.6     96.8    148.8    112.0     67.0     78.1     94.7     95.1     60.5     50.4    965.9  PRCP
+ SDRF     13.2     11.7     13.0     14.2     20.8     17.3     16.5     17.0     21.8     21.1     14.0     13.0           SDRF
+ SKRF     4.89     1.70     1.20     0.89     1.77     1.45     1.91     0.66     2.50     1.66     0.68     1.63           SKRF
+ PW/D    0.130    0.150    0.150    0.210    0.240    0.190    0.140    0.140    0.140    0.140    0.120    0.120           PW/D
+ PW/W    0.400    0.370    0.370    0.400    0.440    0.440    0.350    0.350    0.430    0.410    0.410    0.370           PW/W
+ DAYP     5.52     5.58     5.96     7.78     9.30     7.60     5.49     5.49     5.92     5.95     5.07     4.96    74.62  DAYP
+ P5MX      9.4      9.7     23.4     26.7     37.8     44.7     39.6     37.3     32.3     26.2     28.7      9.7           P5MX
+ SRAD     10.0     13.0     17.1     20.1     22.3     25.9     25.4     24.2     20.2     15.8     12.1      9.7     18.0  SRAD
+ RAMX     12.2     16.3     22.2     28.1     31.9     33.4     32.5     29.1     23.7     17.8     12.9     10.9           RAMX
+ HRLT     9.60    10.59    11.89    13.27    14.39    14.96    14.67    13.65    12.30    10.97     9.82     9.29           HRLT
+ RHUM     0.61     0.60     0.51     0.58     0.70     0.67     0.61     0.58     0.59     0.59     0.56     0.60           RHUM
+ ALPH     0.22     0.20     0.40     0.39     0.43     0.57     0.64     0.52     0.40     0.32     0.48     0.19           ALPH
+  PCF     1.20     1.05     0.94     0.95     1.05     1.01     1.02     0.94     0.99     0.93     0.94     0.99            PCF
+
+         __________RAIN,  TMP ARE INPUT__________
+
+         WET-DRY PROB COEF =  0.750
+         CLIMATIC FACTOR =    0.16
+ WSPD     5.81     5.81     6.26     6.26     5.81     5.81     4.92     4.92     4.47     4.47     4.92     5.36     5.40  WSPD
+
+         WIND DIRECTION DISTRIBUTION
+                   WIND = CHINAg.WND                                                                      
+                                   SIM DUR=  35 YR
+          JAN      FEB      MAR      APR      MAY      JUN      JUL      AUG      SEP      OCT      NOV      DEC       YR
+    N     0.11     0.09     0.08     0.07     0.05     0.02     0.02     0.02     0.04     0.07     0.06     0.08     0.06     N
+  NNE     0.17     0.16     0.14     0.14     0.09     0.05     0.04     0.05     0.10     0.13     0.16     0.11     0.05   NNE
+   NE     0.22     0.22     0.20     0.20     0.14     0.09     0.08     0.09     0.20     0.19     0.22     0.14     0.06    NE
+  ENE     0.24     0.26     0.23     0.23     0.18     0.12     0.11     0.14     0.25     0.22     0.29     0.16     0.04   ENE
+    E     0.27     0.29     0.27     0.27     0.23     0.15     0.16     0.19     0.32     0.26     0.32     0.18     0.04     E
+  ESE     0.30     0.33     0.32     0.31     0.28     0.22     0.23     0.26     0.40     0.32     0.36     0.22     0.05   ESE
+   SE     0.38     0.43     0.41     0.43     0.42     0.38     0.39     0.43     0.57     0.50     0.39     0.30     0.13    SE
+  SSE     0.51     0.54     0.55     0.60     0.60     0.62     0.58     0.65     0.72     0.63     0.48     0.45     0.16   SSE
+    S     0.65     0.65     0.67     0.77     0.80     0.84     0.79     0.83     0.86     0.76     0.61     0.58     0.16     S
+  SSW     0.70     0.69     0.72     0.82     0.86     0.91     0.88     0.89     0.90     0.80     0.77     0.64     0.06   SSW
+   SW     0.74     0.74     0.76     0.85     0.89     0.94     0.94     0.94     0.94     0.84     0.82     0.70     0.04    SW
+  WSW     0.76     0.76     0.78     0.87     0.90     0.95     0.96     0.95     0.95     0.85     0.86     0.72     0.02   WSW
+    W     0.78     0.79     0.82     0.89     0.92     0.97     0.97     0.96     0.96     0.87     0.88     0.76     0.02     W
+  WNW     0.81     0.82     0.86     0.91     0.95     0.98     0.98     0.98     0.97     0.89     0.90     0.82     0.02   WNW
+   NW     0.89     0.91     0.92     0.95     0.97     0.99     0.99     0.99     0.99     0.95     0.97     0.91     0.05    NW
+  NNW     1.00     1.00     1.00     1.00     1.00     1.00     1.00     1.00     1.00     1.00     1.00     1.00     0.05   NNW
+
+ -----GENERATOR SEEDS AFTER  0 CYCLES
+        748932582  1985072130  1631331038    67377721   366304404  1094585182  1767585417  1980520317   392682216    64298628   250756106  1025663860
+                1           2           3           4           5           6           7           8           9          10          11          12
+
+
+
+ ____________________LIVESTOCK MANAGEMENT DATA____________________
+
+                   HERD             FRACTION   GRAZE    MANURE     URINE
+    OWNER HERD     SIZE     MANURE   IN FEED    RATE      PROD      PROD
+       ID  ID     (HEAD)       ID     AREA   (kg/hd/d) (kg/hd/d) (l/hd/d)
+                      0
+         DAILY WEATHER FILE = APEX.wth                                                                        

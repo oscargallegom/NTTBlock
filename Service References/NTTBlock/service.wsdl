@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="DownloadAPEXFolder">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="NTTFilesFolder" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="session1" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DownloadAPEXFolderResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DownloadAPEXFolderResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetStates">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetStatesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetStatesResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCounties">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="state" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCountiesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCountiesResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCounty">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="state" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="county" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetCountyResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetCountyResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sSql" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetRecordResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSoilRecord">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sSql" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSoilRecordResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSoilRecordResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSSA">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="county_code" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSSAResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSSAResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSoils">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ssa" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="county_code" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="txtMaxSlope" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSoilsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSoilsResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetWeather">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="path" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetWeatherResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetWeatherResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="Create_wp1_from_weather">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="loc" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="wp1name" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="controlvalue5" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="pgm" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="Create_wp1_from_weatherResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="Create_wp1_from_weatherResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getHU">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="crop" type="s:short" />
+            <s:element minOccurs="1" maxOccurs="1" name="nlat" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="nlon" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="plantingJulianDay" type="s:unsignedShort" />
+            <s:element minOccurs="0" maxOccurs="1" name="path" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getHUResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="getHUResult" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="jdt">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="i" type="s:short" />
+            <s:element minOccurs="1" maxOccurs="1" name="m" type="s:short" />
+            <s:element minOccurs="1" maxOccurs="1" name="nt" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="jdtResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="jdtResult" type="s:short" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetWeatherfileName">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="nlat" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="nlon" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="latLess" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="latPlus" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="lonLess" type="s:float" />
+            <s:element minOccurs="1" maxOccurs="1" name="lonPlus" type="s:float" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetWeatherfileNameResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetWeatherfileNameResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="DownloadAPEXFolderSoapIn">
+    <wsdl:part name="parameters" element="tns:DownloadAPEXFolder" />
+  </wsdl:message>
+  <wsdl:message name="DownloadAPEXFolderSoapOut">
+    <wsdl:part name="parameters" element="tns:DownloadAPEXFolderResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetStatesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetStates" />
+  </wsdl:message>
+  <wsdl:message name="GetStatesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetStatesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCountiesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetCounties" />
+  </wsdl:message>
+  <wsdl:message name="GetCountiesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetCountiesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetCountySoapIn">
+    <wsdl:part name="parameters" element="tns:GetCounty" />
+  </wsdl:message>
+  <wsdl:message name="GetCountySoapOut">
+    <wsdl:part name="parameters" element="tns:GetCountyResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:GetRecord" />
+  </wsdl:message>
+  <wsdl:message name="GetRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:GetRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSoilRecordSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSoilRecord" />
+  </wsdl:message>
+  <wsdl:message name="GetSoilRecordSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSoilRecordResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSSASoapIn">
+    <wsdl:part name="parameters" element="tns:GetSSA" />
+  </wsdl:message>
+  <wsdl:message name="GetSSASoapOut">
+    <wsdl:part name="parameters" element="tns:GetSSAResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSoilsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSoils" />
+  </wsdl:message>
+  <wsdl:message name="GetSoilsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSoilsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetWeatherSoapIn">
+    <wsdl:part name="parameters" element="tns:GetWeather" />
+  </wsdl:message>
+  <wsdl:message name="GetWeatherSoapOut">
+    <wsdl:part name="parameters" element="tns:GetWeatherResponse" />
+  </wsdl:message>
+  <wsdl:message name="Create_wp1_from_weatherSoapIn">
+    <wsdl:part name="parameters" element="tns:Create_wp1_from_weather" />
+  </wsdl:message>
+  <wsdl:message name="Create_wp1_from_weatherSoapOut">
+    <wsdl:part name="parameters" element="tns:Create_wp1_from_weatherResponse" />
+  </wsdl:message>
+  <wsdl:message name="getHUSoapIn">
+    <wsdl:part name="parameters" element="tns:getHU" />
+  </wsdl:message>
+  <wsdl:message name="getHUSoapOut">
+    <wsdl:part name="parameters" element="tns:getHUResponse" />
+  </wsdl:message>
+  <wsdl:message name="jdtSoapIn">
+    <wsdl:part name="parameters" element="tns:jdt" />
+  </wsdl:message>
+  <wsdl:message name="jdtSoapOut">
+    <wsdl:part name="parameters" element="tns:jdtResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetWeatherfileNameSoapIn">
+    <wsdl:part name="parameters" element="tns:GetWeatherfileName" />
+  </wsdl:message>
+  <wsdl:message name="GetWeatherfileNameSoapOut">
+    <wsdl:part name="parameters" element="tns:GetWeatherfileNameResponse" />
+  </wsdl:message>
+  <wsdl:portType name="ServiceSoap">
+    <wsdl:operation name="DownloadAPEXFolder">
+      <wsdl:input message="tns:DownloadAPEXFolderSoapIn" />
+      <wsdl:output message="tns:DownloadAPEXFolderSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetStates">
+      <wsdl:input message="tns:GetStatesSoapIn" />
+      <wsdl:output message="tns:GetStatesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCounties">
+      <wsdl:input message="tns:GetCountiesSoapIn" />
+      <wsdl:output message="tns:GetCountiesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetCounty">
+      <wsdl:input message="tns:GetCountySoapIn" />
+      <wsdl:output message="tns:GetCountySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetRecord">
+      <wsdl:input message="tns:GetRecordSoapIn" />
+      <wsdl:output message="tns:GetRecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSoilRecord">
+      <wsdl:input message="tns:GetSoilRecordSoapIn" />
+      <wsdl:output message="tns:GetSoilRecordSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSSA">
+      <wsdl:input message="tns:GetSSASoapIn" />
+      <wsdl:output message="tns:GetSSASoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSoils">
+      <wsdl:input message="tns:GetSoilsSoapIn" />
+      <wsdl:output message="tns:GetSoilsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetWeather">
+      <wsdl:input message="tns:GetWeatherSoapIn" />
+      <wsdl:output message="tns:GetWeatherSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="Create_wp1_from_weather">
+      <wsdl:input message="tns:Create_wp1_from_weatherSoapIn" />
+      <wsdl:output message="tns:Create_wp1_from_weatherSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getHU">
+      <wsdl:input message="tns:getHUSoapIn" />
+      <wsdl:output message="tns:getHUSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="jdt">
+      <wsdl:input message="tns:jdtSoapIn" />
+      <wsdl:output message="tns:jdtSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetWeatherfileName">
+      <wsdl:input message="tns:GetWeatherfileNameSoapIn" />
+      <wsdl:output message="tns:GetWeatherfileNameSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServiceSoap" type="tns:ServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="DownloadAPEXFolder">
+      <soap:operation soapAction="http://tempuri.org/DownloadAPEXFolder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetStates">
+      <soap:operation soapAction="http://tempuri.org/GetStates" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCounties">
+      <soap:operation soapAction="http://tempuri.org/GetCounties" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCounty">
+      <soap:operation soapAction="http://tempuri.org/GetCounty" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecord">
+      <soap:operation soapAction="http://tempuri.org/GetRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSoilRecord">
+      <soap:operation soapAction="http://tempuri.org/GetSoilRecord" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSSA">
+      <soap:operation soapAction="http://tempuri.org/GetSSA" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSoils">
+      <soap:operation soapAction="http://tempuri.org/GetSoils" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetWeather">
+      <soap:operation soapAction="http://tempuri.org/GetWeather" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Create_wp1_from_weather">
+      <soap:operation soapAction="http://tempuri.org/Create_wp1_from_weather" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getHU">
+      <soap:operation soapAction="http://tempuri.org/getHU" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="jdt">
+      <soap:operation soapAction="http://tempuri.org/jdt" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetWeatherfileName">
+      <soap:operation soapAction="http://tempuri.org/GetWeatherfileName" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="ServiceSoap12" type="tns:ServiceSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="DownloadAPEXFolder">
+      <soap12:operation soapAction="http://tempuri.org/DownloadAPEXFolder" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetStates">
+      <soap12:operation soapAction="http://tempuri.org/GetStates" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCounties">
+      <soap12:operation soapAction="http://tempuri.org/GetCounties" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetCounty">
+      <soap12:operation soapAction="http://tempuri.org/GetCounty" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetRecord">
+      <soap12:operation soapAction="http://tempuri.org/GetRecord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSoilRecord">
+      <soap12:operation soapAction="http://tempuri.org/GetSoilRecord" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSSA">
+      <soap12:operation soapAction="http://tempuri.org/GetSSA" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSoils">
+      <soap12:operation soapAction="http://tempuri.org/GetSoils" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetWeather">
+      <soap12:operation soapAction="http://tempuri.org/GetWeather" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Create_wp1_from_weather">
+      <soap12:operation soapAction="http://tempuri.org/Create_wp1_from_weather" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getHU">
+      <soap12:operation soapAction="http://tempuri.org/getHU" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="jdt">
+      <soap12:operation soapAction="http://tempuri.org/jdt" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetWeatherfileName">
+      <soap12:operation soapAction="http://tempuri.org/GetWeatherfileName" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Service">
+    <wsdl:port name="ServiceSoap" binding="tns:ServiceSoap">
+      <soap:address location="http://nn.tarleton.edu/NTTBlock/service.asmx" />
+    </wsdl:port>
+    <wsdl:port name="ServiceSoap12" binding="tns:ServiceSoap12">
+      <soap12:address location="http://nn.tarleton.edu/NTTBlock/service.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

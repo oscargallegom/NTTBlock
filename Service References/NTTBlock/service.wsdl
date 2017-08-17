@@ -147,6 +147,7 @@
             <s:element minOccurs="0" maxOccurs="1" name="ssa" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="county_code" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="txtMaxSlope" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="txtSoilsPercentage" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>

@@ -106,6 +106,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Data\ScenariosData.vb" />
+    <Compile Include="App_Data\Wp1Data.vb" />
+    <Compile Include="App_Data\WthData.vb" />
     <Compile Include="Default.vb">
       <SubType>Form</SubType>
     </Compile>

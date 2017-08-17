@@ -22,14 +22,14 @@ Partial Class Form1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(Form1))
         Me.lblMessage = New System.Windows.Forms.Label()
         Me.btnInitialRun = New System.Windows.Forms.Button()
         Me.btnRuns = New System.Windows.Forms.Button()
         Me.gbInitialRun = New System.Windows.Forms.GroupBox()
-        Me.gbRuns = New System.Windows.Forms.GroupBox()
-        Me.btnSimulation1 = New System.Windows.Forms.Button()
-        Me.lblRuns = New System.Windows.Forms.Label()
-        Me.clbRuns = New System.Windows.Forms.CheckedListBox()
+        Me.txtGrazing = New System.Windows.Forms.TextBox()
+        Me.lblGrazing = New System.Windows.Forms.Label()
+        Me.chkGrazing = New System.Windows.Forms.CheckBox()
         Me.txtSoilP = New System.Windows.Forms.TextBox()
         Me.lblSoilP = New System.Windows.Forms.Label()
         Me.txtMaxSlope = New System.Windows.Forms.TextBox()
@@ -44,6 +44,12 @@ Partial Class Form1
         Me.btnSimulation = New System.Windows.Forms.Button()
         Me.clBox = New System.Windows.Forms.CheckedListBox()
         Me.cbStates = New System.Windows.Forms.ComboBox()
+        Me.gbRuns = New System.Windows.Forms.GroupBox()
+        Me.btnSimulation1 = New System.Windows.Forms.Button()
+        Me.lblRuns = New System.Windows.Forms.Label()
+        Me.clbRuns = New System.Windows.Forms.CheckedListBox()
+        Me.lblSoilPercentage = New System.Windows.Forms.Label()
+        Me.txtSoilPercentage = New System.Windows.Forms.TextBox()
         Me.gbInitialRun.SuspendLayout()
         Me.gbRuns.SuspendLayout()
         Me.SuspendLayout()
@@ -76,6 +82,11 @@ Partial Class Form1
         '
         'gbInitialRun
         '
+        Me.gbInitialRun.Controls.Add(Me.txtSoilPercentage)
+        Me.gbInitialRun.Controls.Add(Me.lblSoilPercentage)
+        Me.gbInitialRun.Controls.Add(Me.txtGrazing)
+        Me.gbInitialRun.Controls.Add(Me.lblGrazing)
+        Me.gbInitialRun.Controls.Add(Me.chkGrazing)
         Me.gbInitialRun.Controls.Add(Me.txtSoilP)
         Me.gbInitialRun.Controls.Add(Me.lblSoilP)
         Me.gbInitialRun.Controls.Add(Me.txtMaxSlope)
@@ -92,56 +103,46 @@ Partial Class Form1
         Me.gbInitialRun.Controls.Add(Me.cbStates)
         Me.gbInitialRun.Location = New System.Drawing.Point(15, 34)
         Me.gbInitialRun.Name = "gbInitialRun"
-        Me.gbInitialRun.Size = New System.Drawing.Size(492, 534)
+        Me.gbInitialRun.Size = New System.Drawing.Size(547, 534)
         Me.gbInitialRun.TabIndex = 17
         Me.gbInitialRun.TabStop = False
         Me.gbInitialRun.Text = "Initial Runs"
         '
-        'gbRuns
+        'txtGrazing
         '
-        Me.gbRuns.Controls.Add(Me.btnSimulation1)
-        Me.gbRuns.Controls.Add(Me.lblRuns)
-        Me.gbRuns.Controls.Add(Me.clbRuns)
-        Me.gbRuns.Location = New System.Drawing.Point(15, 36)
-        Me.gbRuns.Name = "gbRuns"
-        Me.gbRuns.Size = New System.Drawing.Size(222, 534)
-        Me.gbRuns.TabIndex = 18
-        Me.gbRuns.TabStop = False
-        Me.gbRuns.Text = "List of Runs"
-        Me.gbRuns.Visible = False
+        Me.txtGrazing.Location = New System.Drawing.Point(321, 198)
+        Me.txtGrazing.Name = "txtGrazing"
+        Me.txtGrazing.Size = New System.Drawing.Size(68, 20)
+        Me.txtGrazing.TabIndex = 30
+        Me.txtGrazing.Text = "0.01"
+        Me.txtGrazing.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        Me.txtGrazing.Visible = False
         '
-        'btnSimulation1
+        'lblGrazing
         '
-        Me.btnSimulation1.Location = New System.Drawing.Point(13, 19)
-        Me.btnSimulation1.Name = "btnSimulation1"
-        Me.btnSimulation1.Size = New System.Drawing.Size(121, 23)
-        Me.btnSimulation1.TabIndex = 26
-        Me.btnSimulation1.Text = "Run simulations"
-        Me.btnSimulation1.UseVisualStyleBackColor = True
+        Me.lblGrazing.AutoSize = True
+        Me.lblGrazing.Location = New System.Drawing.Point(225, 202)
+        Me.lblGrazing.Name = "lblGrazing"
+        Me.lblGrazing.Size = New System.Drawing.Size(93, 13)
+        Me.lblGrazing.TabIndex = 29
+        Me.lblGrazing.Text = "Grazing Limit(t/ha)"
+        Me.lblGrazing.Visible = False
         '
-        'lblRuns
+        'chkGrazing
         '
-        Me.lblRuns.AutoSize = True
-        Me.lblRuns.Location = New System.Drawing.Point(10, 52)
-        Me.lblRuns.Name = "lblRuns"
-        Me.lblRuns.Size = New System.Drawing.Size(115, 13)
-        Me.lblRuns.TabIndex = 25
-        Me.lblRuns.Text = "Select Run to Simulate"
-        '
-        'clbRuns
-        '
-        Me.clbRuns.CheckOnClick = True
-        Me.clbRuns.FormattingEnabled = True
-        Me.clbRuns.Location = New System.Drawing.Point(13, 71)
-        Me.clbRuns.Name = "clbRuns"
-        Me.clbRuns.Size = New System.Drawing.Size(144, 454)
-        Me.clbRuns.TabIndex = 24
+        Me.chkGrazing.AutoSize = True
+        Me.chkGrazing.Location = New System.Drawing.Point(155, 201)
+        Me.chkGrazing.Name = "chkGrazing"
+        Me.chkGrazing.Size = New System.Drawing.Size(68, 17)
+        Me.chkGrazing.TabIndex = 28
+        Me.chkGrazing.Text = "Grazing?"
+        Me.chkGrazing.UseVisualStyleBackColor = True
         '
         'txtSoilP
         '
-        Me.txtSoilP.Location = New System.Drawing.Point(155, 243)
+        Me.txtSoilP.Location = New System.Drawing.Point(323, 164)
         Me.txtSoilP.Name = "txtSoilP"
-        Me.txtSoilP.Size = New System.Drawing.Size(100, 20)
+        Me.txtSoilP.Size = New System.Drawing.Size(68, 20)
         Me.txtSoilP.TabIndex = 27
         Me.txtSoilP.Text = "3"
         Me.txtSoilP.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
@@ -149,7 +150,7 @@ Partial Class Form1
         'lblSoilP
         '
         Me.lblSoilP.AutoSize = True
-        Me.lblSoilP.Location = New System.Drawing.Point(152, 227)
+        Me.lblSoilP.Location = New System.Drawing.Point(152, 167)
         Me.lblSoilP.Name = "lblSoilP"
         Me.lblSoilP.Size = New System.Drawing.Size(62, 13)
         Me.lblSoilP.TabIndex = 26
@@ -157,9 +158,9 @@ Partial Class Form1
         '
         'txtMaxSlope
         '
-        Me.txtMaxSlope.Location = New System.Drawing.Point(155, 191)
+        Me.txtMaxSlope.Location = New System.Drawing.Point(323, 135)
         Me.txtMaxSlope.Name = "txtMaxSlope"
-        Me.txtMaxSlope.Size = New System.Drawing.Size(100, 20)
+        Me.txtMaxSlope.Size = New System.Drawing.Size(68, 20)
         Me.txtMaxSlope.TabIndex = 25
         Me.txtMaxSlope.Text = "50"
         Me.txtMaxSlope.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
@@ -167,7 +168,7 @@ Partial Class Form1
         'lblMaxSlope
         '
         Me.lblMaxSlope.AutoSize = True
-        Me.lblMaxSlope.Location = New System.Drawing.Point(152, 175)
+        Me.lblMaxSlope.Location = New System.Drawing.Point(152, 135)
         Me.lblMaxSlope.Name = "lblMaxSlope"
         Me.lblMaxSlope.Size = New System.Drawing.Size(108, 13)
         Me.lblMaxSlope.TabIndex = 24
@@ -176,7 +177,7 @@ Partial Class Form1
         'lblManagement
         '
         Me.lblManagement.AutoSize = True
-        Me.lblManagement.Location = New System.Drawing.Point(321, 50)
+        Me.lblManagement.Location = New System.Drawing.Point(394, 49)
         Me.lblManagement.Name = "lblManagement"
         Me.lblManagement.Size = New System.Drawing.Size(126, 13)
         Me.lblManagement.TabIndex = 23
@@ -186,7 +187,7 @@ Partial Class Form1
         '
         Me.clbManagement.CheckOnClick = True
         Me.clbManagement.FormattingEnabled = True
-        Me.clbManagement.Location = New System.Drawing.Point(324, 69)
+        Me.clbManagement.Location = New System.Drawing.Point(397, 68)
         Me.clbManagement.Name = "clbManagement"
         Me.clbManagement.Size = New System.Drawing.Size(144, 454)
         Me.clbManagement.TabIndex = 22
@@ -194,23 +195,23 @@ Partial Class Form1
         'cbParm
         '
         Me.cbParm.FormattingEnabled = True
-        Me.cbParm.Location = New System.Drawing.Point(155, 134)
+        Me.cbParm.Location = New System.Drawing.Point(212, 105)
         Me.cbParm.Name = "cbParm"
-        Me.cbParm.Size = New System.Drawing.Size(163, 21)
+        Me.cbParm.Size = New System.Drawing.Size(179, 21)
         Me.cbParm.TabIndex = 21
         '
         'cbControl
         '
         Me.cbControl.FormattingEnabled = True
-        Me.cbControl.Location = New System.Drawing.Point(155, 69)
+        Me.cbControl.Location = New System.Drawing.Point(212, 66)
         Me.cbControl.Name = "cbControl"
-        Me.cbControl.Size = New System.Drawing.Size(163, 21)
+        Me.cbControl.Size = New System.Drawing.Size(179, 21)
         Me.cbControl.TabIndex = 20
         '
         'lblParm
         '
         Me.lblParm.AutoSize = True
-        Me.lblParm.Location = New System.Drawing.Point(152, 108)
+        Me.lblParm.Location = New System.Drawing.Point(152, 89)
         Me.lblParm.Name = "lblParm"
         Me.lblParm.Size = New System.Drawing.Size(83, 13)
         Me.lblParm.TabIndex = 19
@@ -260,16 +261,75 @@ Partial Class Form1
         Me.cbStates.Size = New System.Drawing.Size(121, 21)
         Me.cbStates.TabIndex = 14
         '
+        'gbRuns
+        '
+        Me.gbRuns.Controls.Add(Me.btnSimulation1)
+        Me.gbRuns.Controls.Add(Me.lblRuns)
+        Me.gbRuns.Controls.Add(Me.clbRuns)
+        Me.gbRuns.Location = New System.Drawing.Point(15, 36)
+        Me.gbRuns.Name = "gbRuns"
+        Me.gbRuns.Size = New System.Drawing.Size(222, 534)
+        Me.gbRuns.TabIndex = 18
+        Me.gbRuns.TabStop = False
+        Me.gbRuns.Text = "List of Runs"
+        Me.gbRuns.Visible = False
+        '
+        'btnSimulation1
+        '
+        Me.btnSimulation1.Location = New System.Drawing.Point(13, 19)
+        Me.btnSimulation1.Name = "btnSimulation1"
+        Me.btnSimulation1.Size = New System.Drawing.Size(121, 23)
+        Me.btnSimulation1.TabIndex = 26
+        Me.btnSimulation1.Text = "Run simulations"
+        Me.btnSimulation1.UseVisualStyleBackColor = True
+        '
+        'lblRuns
+        '
+        Me.lblRuns.AutoSize = True
+        Me.lblRuns.Location = New System.Drawing.Point(10, 52)
+        Me.lblRuns.Name = "lblRuns"
+        Me.lblRuns.Size = New System.Drawing.Size(115, 13)
+        Me.lblRuns.TabIndex = 25
+        Me.lblRuns.Text = "Select Run to Simulate"
+        '
+        'clbRuns
+        '
+        Me.clbRuns.CheckOnClick = True
+        Me.clbRuns.FormattingEnabled = True
+        Me.clbRuns.Location = New System.Drawing.Point(13, 71)
+        Me.clbRuns.Name = "clbRuns"
+        Me.clbRuns.Size = New System.Drawing.Size(144, 454)
+        Me.clbRuns.TabIndex = 24
+        '
+        'lblSoilPercentage
+        '
+        Me.lblSoilPercentage.AutoSize = True
+        Me.lblSoilPercentage.Location = New System.Drawing.Point(152, 235)
+        Me.lblSoilPercentage.Name = "lblSoilPercentage"
+        Me.lblSoilPercentage.Size = New System.Drawing.Size(131, 13)
+        Me.lblSoilPercentage.TabIndex = 31
+        Me.lblSoilPercentage.Text = "Soil Percentage to Upload"
+        '
+        'txtSoilPercentage
+        '
+        Me.txtSoilPercentage.Location = New System.Drawing.Point(321, 235)
+        Me.txtSoilPercentage.Name = "txtSoilPercentage"
+        Me.txtSoilPercentage.Size = New System.Drawing.Size(68, 20)
+        Me.txtSoilPercentage.TabIndex = 32
+        Me.txtSoilPercentage.Text = "100"
+        Me.txtSoilPercentage.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(985, 580)
-        Me.Controls.Add(Me.gbRuns)
         Me.Controls.Add(Me.gbInitialRun)
         Me.Controls.Add(Me.btnRuns)
         Me.Controls.Add(Me.btnInitialRun)
         Me.Controls.Add(Me.lblMessage)
+        Me.Controls.Add(Me.gbRuns)
+        Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "Form1"
         Me.Text = "Form1"
         Me.gbInitialRun.ResumeLayout(False)
@@ -302,5 +362,10 @@ Partial Class Form1
     Friend WithEvents btnSimulation1 As System.Windows.Forms.Button
     Friend WithEvents lblRuns As System.Windows.Forms.Label
     Friend WithEvents clbRuns As System.Windows.Forms.CheckedListBox
+    Friend WithEvents txtGrazing As System.Windows.Forms.TextBox
+    Friend WithEvents lblGrazing As System.Windows.Forms.Label
+    Friend WithEvents chkGrazing As System.Windows.Forms.CheckBox
+    Friend WithEvents txtSoilPercentage As System.Windows.Forms.TextBox
+    Friend WithEvents lblSoilPercentage As System.Windows.Forms.Label
 
 End Class

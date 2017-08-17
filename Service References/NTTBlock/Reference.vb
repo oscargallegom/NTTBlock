@@ -49,7 +49,7 @@ Namespace NTTBlock
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/GetSoils", ReplyAction:="*"),  _
          System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults:=true)>  _
-        Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String) As System.Data.DataTable
+        Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String, ByVal txtSoilsPercentage As String) As System.Data.DataTable
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/GetWeather", ReplyAction:="*"),  _
          System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults:=true)>  _
@@ -131,8 +131,8 @@ Namespace NTTBlock
             Return MyBase.Channel.GetSSA(county_code)
         End Function
         
-        Public Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String) As System.Data.DataTable Implements NTTBlock.ServiceSoap.GetSoils
-            Return MyBase.Channel.GetSoils(ssa, county_code, txtMaxSlope)
+        Public Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String, ByVal txtSoilsPercentage As String) As System.Data.DataTable Implements NTTBlock.ServiceSoap.GetSoils
+            Return MyBase.Channel.GetSoils(ssa, county_code, txtMaxSlope, txtSoilsPercentage)
         End Function
         
         Public Function GetWeather(ByVal path As String) As String() Implements NTTBlock.ServiceSoap.GetWeather

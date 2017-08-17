@@ -7,6 +7,7 @@
         Public cropYieldUnit As String
         Public cropYieldFactor As Single
         Public cropDryMatter As Single
+        'Public biomas As Single
     End Structure
 
     Public Structure APEXResults
@@ -38,6 +39,13 @@
         Public tileDrainFlow As Single
         Public deepPerFlow As Single
         Public co2 As Single
+        Public percolation As Single
+        Public water_yield As Single
+        Public pet As Single
+        Public et As Single
+        Public soil_water As Single
+        Public pcp As Single
+        Public bioms() As Single
     End Structure
 
     Public Structure OtherInfo

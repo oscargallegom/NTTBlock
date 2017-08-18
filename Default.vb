@@ -182,7 +182,7 @@ Public Class Form1
         Return msg
     End Function
 
-    Private Sub btnSimulation_Click(sender As System.Object, e As System.EventArgs) Handles btnSimulation.Click
+    Private Sub btnSimulation_Click1(sender As System.Object, e As System.EventArgs)
         Dim county_code As String = String.Empty
         Dim county_info As county_info
         Dim weather_info As weather_info
@@ -200,6 +200,11 @@ Public Class Form1
         Dim key As Integer = 0
         Dim errors As Boolean = False
         Dim msg As String = "OK"
+        Dim total_soils As Integer = 0
+        Dim soil_number As Integer = 0
+        Dim first_random As Random = New Random
+        Dim next_soil As Single = 0
+        Dim next_selected As Single = 0.0
 
         Try
             lblMessage.Text = validate_inputs()
@@ -224,54 +229,187 @@ Public Class Form1
                         depth = 999
                         series_name = String.Empty
                         soil_name = String.Empty
-                        soils = service.GetSoils(ssa("code"), county_info.code, txtMaxSlope.Text, txtSoilPercentage.Text)
+                        soil_number = 1
+                        total_soils = service.GetTotalSoils(ssa("code"), county_info.code, txtMaxSlope.Text)
+                        next_soil = total_soils / (total_soils * txtSoilPercentage.Text / 100)
+                        next_selected = first_random.Next(1, next_soil)
+                        soils = service.GetSoils(ssa("code"), county_info.code, txtMaxSlope.Text)
                         If soils.Rows.Count = 0 Then Continue For
                         series_name = soils.Rows(0)("seriesName")
                         soil_name = soils.Rows(0)("MuName")
-                        For Each soil In soils.Rows
-                            new_layer = False
-                            lblMessage.Text = "Running County => " & clBox.Items(i) & " - SSA => " & ssa("Code") & " - Soil => " & soil("series")
-                            lblMessage.ForeColor = Color.Green
-                            If IsDBNull(soil("ldep")) Then Continue For
-                            If depth >= soil("ldep") Then
-                                If series_name <> soil("seriesName") Or soil_name <> soil("MuName") Then
-                                    layer_number = 0
-                                    If Not swSoil Is Nothing Then
-                                        print_layers()
-                                        swSoil.Close()
-                                        'create subarea
-                                        create_subarea_file(slope / 100)
-                                        'copy the operation file one by one from the management list and then run the simulation
-                                        For Each mgt In clbManagement.CheckedItems
-                                            If mgt.ToString.Contains("Select") Then Continue For
-                                            copy_management_file(mgt)
-                                            If layers.z.Length > 0 Then msg = run_apex(cbStates.SelectedItem, county_info.code, ssa("code"), name, series_name, key, slope, mgt, cbParm.SelectedItem, cbControl.SelectedItem, 0)
-                                        Next
-                                        series_name = soil("SeriesName")
-                                        soil_name = soil("MuName")
+                        'For Each soil In soils.Rows
+                        For j = 0 To soils.Rows.Count - 1
+                            If next_selected <= soil_number Then
+                                new_layer = False
+                                lblMessage.Text = "Running County => " & clBox.Items(i) & " - SSA => " & ssa("Code") & " - Soil => " & soils.Rows(j).Item("series")
+                                lblMessage.ForeColor = Color.Green
+                                If IsDBNull(soils.Rows(j).Item("ldep")) Then Continue For
+                                If depth >= soils.Rows(j).Item("ldep") Then
+                                    If series_name <> soils.Rows(j).Item("seriesName") Or soil_name <> soils.Rows(j).Item("MuName") Then
+                                        next_selected += next_soil
+                                        soil_number += 1
+                                        layer_number = 0
+                                        If Not swSoil Is Nothing Then
+                                            print_layers()
+                                            swSoil.Close()
+                                            'create subarea
+                                            create_subarea_file(slope / 100)
+                                            'copy the operation file one by one from the management list and then run the simulation
+                                            For Each mgt In clbManagement.CheckedItems
+                                                If mgt.ToString.Contains("Select") Then Continue For
+                                                copy_management_file(mgt)
+                                                If layers.z.Length > 0 Then msg = run_apex(cbStates.SelectedItem, county_info.code, ssa("code"), name, series_name, key, slope, mgt, cbParm.SelectedItem, cbControl.SelectedItem, 0)
+                                            Next
+                                            series_name = soils.Rows(j).Item("SeriesName")
+                                            soil_name = soils.Rows(j).Item("MuName")
+                                        End If
                                     End If
+                                Else
+                                    new_layer = True
                                 End If
-                            Else
-                                new_layer = True
+                                'If Not (depth = soils.Rows(j).Item("ldep") And series_name = soils.Rows(j).Item("seriesName")) Then
+                                If layer_number = 0 Then
+                                    slope = (soils.Rows(j).Item("slopel") + soils.Rows(j).Item("slopeh")) / 2
+                                    name = soils.Rows(j).Item("series")
+                                    key = soils.Rows(j).Item("muid")
+                                    layers = New layer_info
+                                    swSoil = New StreamWriter(apex_current & "\APEX.sol")
+                                End If
+                                depth = soils.Rows(j).Item("ldep")
+                                If new_layer Or layer_number = 0 Then
+                                    layer_number += 1
+                                    create_soils(soils.Rows(j), layer_number)
+                                End If
                             End If
-                            'If Not (depth = soil("ldep") And series_name = soil("seriesName")) Then
-                            If layer_number = 0 Then
-                                slope = (soil("slopel") + soil("slopeh")) / 2
-                                name = soil("series")
-                                key = soil("muid")
-                                layers = New layer_info
-                                swSoil = New StreamWriter(apex_current & "\APEX.sol")
-                            End If
-                            depth = soil("ldep")
-                            If new_layer Or layer_number = 0 Then
-                                layer_number += 1
-                                create_soils(soil, layer_number)
+                            If series_name <> soils.Rows(j).Item("seriesName") Or soil_name <> soils.Rows(j).Item("MuName") Then
+                                series_name = soils.Rows(j).Item("SeriesName")
+                                soil_name = soils.Rows(j).Item("MuName")
+                                soil_number += 1
                             End If
                         Next
                         swSoil.Close()
                         sw_log.Close()
                     Next
                 End If
+            Next
+
+            lblMessage.Text = "Simulations finished succesfully"
+            lblMessage.ForeColor = Color.Green
+
+        Catch ex As Exception
+            'if any error send a message.
+            lblMessage.Text = "Error running Simulations " & ex.Message
+            lblMessage.ForeColor = Color.Red
+        Finally
+            If Not swSoil Is Nothing Then
+                swSoil.Close()
+                swSoil.Dispose()
+                swSoil = Nothing
+            End If
+
+            If Not sw_log Is Nothing Then
+                sw_log.Close()
+                sw_log.Dispose()
+                sw_log = Nothing
+            End If
+            If errors = False Then SaveFile(Directory.GetCurrentDirectory(), "Results.xls")
+        End Try
+    End Sub
+
+    Private Sub btnSimulation_Click(sender As System.Object, e As System.EventArgs) Handles btnSimulation.Click
+        Dim county_code As String = String.Empty
+        Dim county_info As county_info
+        Dim weather_info As weather_info
+        Dim weaterFileName As SqlDataReader = Nothing
+        'Dim ssas As SqlDataReader = Nothing
+        Dim ssas As DataTable = Nothing
+        Dim soils As DataTable = Nothing
+        Dim layer_number As UShort = 0
+        Dim depth As Single = 999
+        Dim series_name As String = String.Empty
+        Dim soil_name As String = String.Empty
+        Dim new_layer As Boolean = False
+        Dim slope As Single = 0
+        Dim name As String = String.Empty
+        Dim key As Integer = 0
+        Dim errors As Boolean = False
+        Dim msg As String = "OK"
+        Dim total_soils As Integer = 0
+        Dim soil_number As Integer = 0
+        Dim first_random As Random = New Random
+        Dim next_soil As Single = 0
+        Dim next_selected As Single = 0.0
+
+        Try
+            lblMessage.Text = validate_inputs()
+            If lblMessage.Text <> "" Then errors = True : lblMessage.ForeColor = Color.Red : Exit Sub
+            'create the excel file in memory before the simulations start.
+            create_excel_file("Sheet1")
+            'Read all of the counties selected and take code and center coordinates.
+            For Each county In clBox.CheckedItems
+                county_info = CoutyInfo("SELECT TOP 1 * FROM County_Extended WHERE StateAbrev like '" & Split(cbStates.SelectedItem, "-")(1).Trim & "%' AND [Name] like '" & county.Trim & "%' ORDER BY [Name]")
+                If county_info.lon = 0 And county_info.lat = 0 Then Continue For
+                weather_info = GetWeatherInfo(county_info.lat, county_info.lon)
+                If weather_info.name = "Error" Then Continue For
+                ssas = service.GetSSA(county_info.code)
+                APEXFolders(cbControl.SelectedItem, cbParm.SelectedItem)
+                'initialize log file
+                sw_log = New StreamWriter(apex_current & "\log.log")
+                create_Weather_file(weather_info.name)
+                For Each ssa In ssas.Rows
+                    'If Not swSoil Is Nothing Then swSoil.Close()
+                    'layer_number = 0
+                    'depth = 999
+                    'series_name = String.Empty
+                    'soil_name = String.Empty
+                    soil_number = 1
+                    total_soils = service.GetTotalSoils(ssa("code"), county_info.code, txtMaxSlope.Text)
+                    next_soil = total_soils / (total_soils * txtSoilPercentage.Text / 100)
+                    next_selected = first_random.Next(1, next_soil)
+                    soils = service.GetSoils(ssa("code"), county_info.code, txtMaxSlope.Text)
+                    If soils.Rows.Count = 0 Then Continue For
+                    'series_name = soils.Rows(0)("seriesName")
+                    'soil_name = soils.Rows(0)("MuName")
+                    'For Each soil In soils.Rows
+                    soil_name = soils.Rows(0).Item("MuName")
+                    series_name = soils.Rows(0).Item("seriesName")
+                    For j = 0 To soils.Rows.Count - 1
+                        depth = 0
+                        If next_selected <= soil_number Then
+                            lblMessage.Text = "Running County => " & county & " - SSA => " & ssa("Code") & " - Soil => " & soils.Rows(j).Item("series")
+                            lblMessage.ForeColor = Color.Green
+                            layer_number = 0
+                            slope = (soils.Rows(j).Item("slopel") + soils.Rows(j).Item("slopeh")) / 2
+                            name = soils.Rows(j).Item("series")
+                            layers = New layer_info
+                            swSoil = New StreamWriter(apex_current & "\APEX.sol")
+                            Do While soil_name = soils.Rows(j).Item("MuName") And series_name = soils.Rows(j).Item("seriesName")
+                                If depth < soils.Rows(j).Item("ldep") Then
+                                    layer_number += 1
+                                    If layer_number <= 10 Then create_soils(soils.Rows(j), layer_number)
+                                    depth = soils.Rows(j).Item("ldep")
+                                End If
+                                j += 1
+                            Loop
+                            print_layers()
+                            swSoil.Close()
+                            swSoil.Dispose()
+                            swSoil = Nothing
+                            create_subarea_file(slope / 100)
+                            For Each mgt In clbManagement.CheckedItems
+                                If mgt.ToString.Contains("Select") Then Continue For
+                                copy_management_file(mgt)
+                                If layers.z.Length > 0 Then msg = run_apex(cbStates.SelectedItem, county_info.code, ssa("code"), name, series_name, key, slope, mgt, cbParm.SelectedItem, cbControl.SelectedItem, 0)
+                            Next
+                            next_selected += next_soil
+                        End If
+                        If soil_name <> soils.Rows(j).Item("MuName") Or series_name <> soils.Rows(j).Item("seriesName") Then
+                            soil_name = soils.Rows(j).Item("MuName")
+                            series_name = soils.Rows(j).Item("seriesName")
+                            soil_number += 1
+                        End If
+                    Next
+                Next
             Next
 
             lblMessage.Text = "Simulations finished succesfully"

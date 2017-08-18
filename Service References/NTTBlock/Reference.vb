@@ -47,9 +47,13 @@ Namespace NTTBlock
          System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults:=true)>  _
         Function GetSSA(ByVal county_code As String) As System.Data.DataTable
         
+        <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/GetTotalSoils", ReplyAction:="*"),  _
+         System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults:=true)>  _
+        Function GetTotalSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String) As Integer
+        
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/GetSoils", ReplyAction:="*"),  _
          System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults:=true)>  _
-        Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String, ByVal txtSoilsPercentage As String) As System.Data.DataTable
+        Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String) As System.Data.DataTable
         
         <System.ServiceModel.OperationContractAttribute(Action:="http://tempuri.org/GetWeather", ReplyAction:="*"),  _
          System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults:=true)>  _
@@ -131,8 +135,12 @@ Namespace NTTBlock
             Return MyBase.Channel.GetSSA(county_code)
         End Function
         
-        Public Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String, ByVal txtSoilsPercentage As String) As System.Data.DataTable Implements NTTBlock.ServiceSoap.GetSoils
-            Return MyBase.Channel.GetSoils(ssa, county_code, txtMaxSlope, txtSoilsPercentage)
+        Public Function GetTotalSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String) As Integer Implements NTTBlock.ServiceSoap.GetTotalSoils
+            Return MyBase.Channel.GetTotalSoils(ssa, county_code, txtMaxSlope)
+        End Function
+        
+        Public Function GetSoils(ByVal ssa As String, ByVal county_code As String, ByVal txtMaxSlope As String) As System.Data.DataTable Implements NTTBlock.ServiceSoap.GetSoils
+            Return MyBase.Channel.GetSoils(ssa, county_code, txtMaxSlope)
         End Function
         
         Public Function GetWeather(ByVal path As String) As String() Implements NTTBlock.ServiceSoap.GetWeather

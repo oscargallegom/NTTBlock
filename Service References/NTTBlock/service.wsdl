@@ -141,13 +141,28 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="GetTotalSoils">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ssa" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="county_code" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="txtMaxSlope" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTotalSoilsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="GetTotalSoilsResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="GetSoils">
         <s:complexType>
           <s:sequence>
             <s:element minOccurs="0" maxOccurs="1" name="ssa" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="county_code" type="s:string" />
             <s:element minOccurs="0" maxOccurs="1" name="txtMaxSlope" type="s:string" />
-            <s:element minOccurs="0" maxOccurs="1" name="txtSoilsPercentage" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -305,6 +320,12 @@
   <wsdl:message name="GetSSASoapOut">
     <wsdl:part name="parameters" element="tns:GetSSAResponse" />
   </wsdl:message>
+  <wsdl:message name="GetTotalSoilsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTotalSoils" />
+  </wsdl:message>
+  <wsdl:message name="GetTotalSoilsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTotalSoilsResponse" />
+  </wsdl:message>
   <wsdl:message name="GetSoilsSoapIn">
     <wsdl:part name="parameters" element="tns:GetSoils" />
   </wsdl:message>
@@ -369,6 +390,10 @@
     <wsdl:operation name="GetSSA">
       <wsdl:input message="tns:GetSSASoapIn" />
       <wsdl:output message="tns:GetSSASoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSoils">
+      <wsdl:input message="tns:GetTotalSoilsSoapIn" />
+      <wsdl:output message="tns:GetTotalSoilsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="GetSoils">
       <wsdl:input message="tns:GetSoilsSoapIn" />
@@ -453,6 +478,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetSSA">
       <soap:operation soapAction="http://tempuri.org/GetSSA" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSoils">
+      <soap:operation soapAction="http://tempuri.org/GetTotalSoils" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>
@@ -573,6 +607,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetSSA">
       <soap12:operation soapAction="http://tempuri.org/GetSSA" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTotalSoils">
+      <soap12:operation soapAction="http://tempuri.org/GetTotalSoils" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

@@ -221,7 +221,7 @@ Public Class Form1
                     ssas = service.GetSSA(county_info.code)
                     APEXFolders(cbControl.SelectedItem, cbParm.SelectedItem)
                     'initialize log file
-                    sw_log = New StreamWriter(apex_current & "\log.log")
+                    'sw_log = New StreamWriter(apex_current & "\log.log")
                     create_Weather_file(weather_info.name)
                     For Each ssa In ssas.Rows
                         If Not swSoil Is Nothing Then swSoil.Close()
@@ -288,7 +288,7 @@ Public Class Form1
                             End If
                         Next
                         swSoil.Close()
-                        sw_log.Close()
+                        'sw_log.Close()
                     Next
                 End If
             Next
@@ -307,11 +307,11 @@ Public Class Form1
                 swSoil = Nothing
             End If
 
-            If Not sw_log Is Nothing Then
-                sw_log.Close()
-                sw_log.Dispose()
-                sw_log = Nothing
-            End If
+            'If Not sw_log Is Nothing Then
+            '    sw_log.Close()
+            '    sw_log.Dispose()
+            '    sw_log = Nothing
+            'End If
             If errors = False Then SaveFile(Directory.GetCurrentDirectory(), "Results.xls")
         End Try
     End Sub
@@ -354,7 +354,7 @@ Public Class Form1
                 ssas = service.GetSSA(county_info.code)
                 APEXFolders(cbControl.SelectedItem, cbParm.SelectedItem)
                 'initialize log file
-                sw_log = New StreamWriter(apex_current & "\log.log")
+                'sw_log = New StreamWriter(apex_current & "\log.log")
                 create_Weather_file(weather_info.name)
                 For Each ssa In ssas.Rows
                     'If Not swSoil Is Nothing Then swSoil.Close()
@@ -371,6 +371,7 @@ Public Class Form1
                     'series_name = soils.Rows(0)("seriesName")
                     'soil_name = soils.Rows(0)("MuName")
                     'For Each soil In soils.Rows
+                    If soils.Rows.Count <= 0 Then Continue For
                     soil_name = soils.Rows(0).Item("MuName")
                     series_name = soils.Rows(0).Item("seriesName")
                     For j = 0 To soils.Rows.Count - 1
@@ -426,11 +427,11 @@ Public Class Form1
                 swSoil = Nothing
             End If
 
-            If Not sw_log Is Nothing Then
-                sw_log.Close()
-                sw_log.Dispose()
-                sw_log = Nothing
-            End If
+            'If Not sw_log Is Nothing Then
+            '    sw_log.Close()
+            '    sw_log.Dispose()
+            '    sw_log = Nothing
+            'End If
             If errors = False Then SaveFile(Directory.GetCurrentDirectory(), "Results.xls")
         End Try
     End Sub

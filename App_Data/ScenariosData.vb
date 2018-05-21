@@ -44,8 +44,10 @@
         Public pet As Single
         Public et As Single
         Public soil_water As Single
+        Public avol As Single
         Public pcp As Single
         Public bioms() As Single
+        Public stl() As Single
     End Structure
 
     Public Structure OtherInfo
@@ -59,5 +61,6 @@
         Public management
         Public param_file
         Public control_file
+        Public drainType As String
     End Structure
 End Class

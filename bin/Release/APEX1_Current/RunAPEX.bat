@@ -1,5 +1,5 @@
 C:
 cd\
-Cd C:\Borrar\NTTBlock\NTTBlock\bin\Release\APEX1_Current
+Cd C:\Borrar\NTTRS\NTTBlock\bin\Release\APEX1_Current
 APEX0806.exe
  

@@ -100,10 +100,11 @@ Public Class Form1
     Private Const ac_to_ha As Single = 0.404686
     Private service As New NTTBlock.ServiceSoapClient  'Source on t-nn\E:\borrar\NTTBlock_WebService
     Private sw_log As StreamWriter = Nothing
-    Private xlApp, xlApp1 As Microsoft.Office.Interop.Excel.Application
-    Private wb, wb1 As Microsoft.Office.Interop.Excel.Workbook
-    Private ws, ws1 As Microsoft.Office.Interop.Excel.Worksheet
+    'Private xlApp, xlApp1, xlApp2 As Microsoft.Office.Interop.Excel.Application
+    'Private wb, wb1, wb2 As Microsoft.Office.Interop.Excel.Workbook
+    'Private ws, ws1, ws2 As Microsoft.Office.Interop.Excel.Worksheet
     Private row_number = 1
+    Private sw_results As StreamWriter = Nothing
 
     Private Sub Form1_Load(sender As Object, e As System.EventArgs) Handles Me.Load
         LoadStates()
@@ -131,7 +132,7 @@ Public Class Form1
         Get
             Dim sConnectString As String = String.Empty
             Const sDBConnectionDefault As String = "Server=DBSERVER;initial catalog=DBCATALOG;persist security info=False"
-            Dim sServer As String = "T-NN"
+            Dim sServer As String = "T-NN1"
             Dim sInstance As String = "SQLEXPRESS"
             Dim sCatalog As String = "NTTDB"
             Dim sUN As String = "sa"
@@ -179,6 +180,14 @@ Public Class Form1
 
         If txtSoilP.Text <= "0" Then msg &= "- Please enter soil P "
 
+        If chk_autoirrigation.Checked Then
+            If cb_irrigation_type.SelectedIndex < 0 Then msg = "- Please select type of irrigation "
+            If txtEfficiency.Text <= 0.0 Then msg = "- Please enter irrigation effiency "
+            If txtInterval.Text <= 0.0 Then msg = "- Please enter irrigation interval in days "
+            If txtStress.Text <= 0.0 Then msg = "- Please enter irrigation stress level to trigger irrigation "
+            If txtApplication.Text <= 0.0 Then msg = "- Please Max single application in in. "
+        End If
+
         Return msg
     End Function
 
@@ -210,7 +219,10 @@ Public Class Form1
             lblMessage.Text = validate_inputs()
             If lblMessage.Text <> "" Then errors = True : lblMessage.ForeColor = Color.Red : Exit Sub
             'create the excel file in memory before the simulations start.
-            create_excel_file("Sheet1")
+            'xlApp = CreateObject("Excel.Application")
+            'wb = xlApp.Workbooks.Add
+            'ws = wb.Worksheets("Sheet1") 'Specify your worksheet name
+            'create_excel_file()
             'Read all of the counties selected and take code and center coordinates.
             For i = 1 To clBox.Items.Count - 1
                 If clBox.GetItemCheckState(i) = CheckState.Checked Then
@@ -253,12 +265,12 @@ Public Class Form1
                                             print_layers()
                                             swSoil.Close()
                                             'create subarea
-                                            create_subarea_file(slope / 100)
+                                            create_subarea_file(slope / 100, soils.Rows(j).Item("horizgen"))
                                             'copy the operation file one by one from the management list and then run the simulation
                                             For Each mgt In clbManagement.CheckedItems
                                                 If mgt.ToString.Contains("Select") Then Continue For
                                                 copy_management_file(mgt)
-                                                If layers.z.Length > 0 Then msg = run_apex(cbStates.SelectedItem, county_info.code, ssa("code"), name, series_name, key, slope, mgt, cbParm.SelectedItem, cbControl.SelectedItem, 0)
+                                                If layers.z.Length > 0 Then msg = run_apex(cbStates.SelectedItem, county_info.code, ssa("code"), name, series_name, key, slope, mgt, cbParm.SelectedItem, cbControl.SelectedItem, 0, soils.Rows(j).Item("horizgen"))
                                             Next
                                             series_name = soils.Rows(j).Item("SeriesName")
                                             soil_name = soils.Rows(j).Item("MuName")
@@ -312,7 +324,7 @@ Public Class Form1
             '    sw_log.Dispose()
             '    sw_log = Nothing
             'End If
-            If errors = False Then SaveFile(Directory.GetCurrentDirectory(), "Results.xls")
+            If errors = False Then SaveFile(Directory.GetCurrentDirectory(), "Results.xlsx")
         End Try
     End Sub
 
@@ -339,86 +351,104 @@ Public Class Form1
         Dim first_random As Random = New Random
         Dim next_soil As Single = 0
         Dim next_selected As Single = 0.0
+        Dim total_layers As Integer = 0
+        Dim found As Boolean = False
+        Dim horizgen As String = String.Empty
 
         Try
+            sw_results = New StreamWriter(Directory.GetCurrentDirectory() & "\Results.txt")
+            sw_results.AutoFlush = True
             lblMessage.Text = validate_inputs()
             If lblMessage.Text <> "" Then errors = True : lblMessage.ForeColor = Color.Red : Exit Sub
             'create the excel file in memory before the simulations start.
-            create_excel_file("Sheet1")
+            create_titles_file()
             'Read all of the counties selected and take code and center coordinates.
             For Each county In clBox.CheckedItems
-                county_info = CoutyInfo("SELECT TOP 1 * FROM County_Extended WHERE StateAbrev like '" & Split(cbStates.SelectedItem, "-")(1).Trim & "%' AND [Name] like '" & county.Trim & "%' ORDER BY [Name]")
+                If county.ToString.Contains("'s") Then county = county.ToString.Replace("'s", "")
+                county_info = CoutyInfo("SELECT code, lon, lat, wcode, wname FROM County, CountyCoor, CountyWp1 WHERE StateAbrev like '" & Split(cbStates.SelectedItem, "-")(1).Trim & "%' AND [Name] like '" & county.Trim & "%' AND County.code = CountyCoor.County and County.code = CountyWp1.County")
                 If county_info.lon = 0 And county_info.lat = 0 Then Continue For
                 weather_info = GetWeatherInfo(county_info.lat, county_info.lon)
-                If weather_info.name = "Error" Then Continue For
+                If weather_info.name = "Error" Then
+                    Throw New Global.System.Exception("No weather file found for this county")
+                End If
                 ssas = service.GetSSA(county_info.code)
+                'create APEX folder
                 APEXFolders(cbControl.SelectedItem, cbParm.SelectedItem)
-                'initialize log file
-                'sw_log = New StreamWriter(apex_current & "\log.log")
+                'Create weather file
                 create_Weather_file(weather_info.name)
+                'read all of the soil survey areas
                 For Each ssa In ssas.Rows
-                    'If Not swSoil Is Nothing Then swSoil.Close()
-                    'layer_number = 0
-                    'depth = 999
-                    'series_name = String.Empty
-                    'soil_name = String.Empty
                     soil_number = 1
+                    'Take total number of soils for that soils survey area
                     total_soils = service.GetTotalSoils(ssa("code"), county_info.code, txtMaxSlope.Text)
+                    If total_soils = 0 Then Continue For 'if there is not soils
                     next_soil = total_soils / (total_soils * txtSoilPercentage.Text / 100)
                     next_selected = first_random.Next(1, next_soil)
+                    'Get the soils information for that soil survey area
                     soils = service.GetSoils(ssa("code"), county_info.code, txtMaxSlope.Text)
-                    If soils.Rows.Count = 0 Then Continue For
-                    'series_name = soils.Rows(0)("seriesName")
-                    'soil_name = soils.Rows(0)("MuName")
-                    'For Each soil In soils.Rows
                     If soils.Rows.Count <= 0 Then Continue For
                     soil_name = soils.Rows(0).Item("MuName")
                     series_name = soils.Rows(0).Item("seriesName")
-                    For j = 0 To soils.Rows.Count - 1
+                    total_layers = soils.Rows.Count - 1
+                    'Go through all of the layers for each soil. Controling when the soil change either soil name or soil series.
+                    For j = 0 To total_layers
+                        If soils.Rows(j).Item("MuName").ToString.Contains("Wintergreen") Then
+                            Dim a As String
+                            a = ""
+                        End If
                         depth = 0
                         If next_selected <= soil_number Then
                             lblMessage.Text = "Running County => " & county & " - SSA => " & ssa("Code") & " - Soil => " & soils.Rows(j).Item("series")
                             lblMessage.ForeColor = Color.Green
                             layer_number = 0
                             slope = (soils.Rows(j).Item("slopel") + soils.Rows(j).Item("slopeh")) / 2
+                            key = soils.Rows(j).Item("Muid")
                             name = soils.Rows(j).Item("series")
+                            horizgen = soils.Rows(j).Item("horizgen")
                             layers = New layer_info
                             swSoil = New StreamWriter(apex_current & "\APEX.sol")
+                            found = False
                             Do While soil_name = soils.Rows(j).Item("MuName") And series_name = soils.Rows(j).Item("seriesName")
-                                If depth < soils.Rows(j).Item("ldep") Then
-                                    layer_number += 1
-                                    If layer_number <= 10 Then create_soils(soils.Rows(j), layer_number)
-                                    depth = soils.Rows(j).Item("ldep")
+                                If Not (soils.Rows(j).Item("ldep") Is Nothing Or IsDBNull(soils.Rows(j).Item("ldep"))) Then  'controls if the the same depth is for the current layer to not use it.
+                                    If depth < soils.Rows(j).Item("ldep") Then
+                                        layer_number += 1
+                                        If layer_number <= 10 Then create_soils(soils.Rows(j), layer_number)
+                                        depth = soils.Rows(j).Item("ldep")
+                                    End If
                                 End If
                                 j += 1
+                                found = True
+                                If j > total_layers Then Exit Do
                             Loop
-                            print_layers()
+                            print_layers()  'print layers for the current sooi in the APEX soil file
                             swSoil.Close()
                             swSoil.Dispose()
                             swSoil = Nothing
-                            create_subarea_file(slope / 100)
+                            create_subarea_file(slope / 100, horizgen) 'create subarea file.
+                            'create operation files for each management selected
                             For Each mgt In clbManagement.CheckedItems
                                 If mgt.ToString.Contains("Select") Then Continue For
                                 copy_management_file(mgt)
-                                If layers.z.Length > 0 Then msg = run_apex(cbStates.SelectedItem, county_info.code, ssa("code"), name, series_name, key, slope, mgt, cbParm.SelectedItem, cbControl.SelectedItem, 0)
+                                If Not (name.ToLower.Contains("urban") Or series_name.ToLower.Contains("urban")) AndAlso layer_number > 0 AndAlso layers.z.Length > 0 Then msg = run_apex(cbStates.SelectedItem, county_info.code, ssa("code"), name, series_name, key, slope, mgt, cbParm.SelectedItem, cbControl.SelectedItem, 0, horizgen)
                             Next
                             next_selected += next_soil
                         End If
+                        If j > total_layers Then Exit For
                         If soil_name <> soils.Rows(j).Item("MuName") Or series_name <> soils.Rows(j).Item("seriesName") Then
                             soil_name = soils.Rows(j).Item("MuName")
                             series_name = soils.Rows(j).Item("seriesName")
                             soil_number += 1
+                            If found Then j -= 1 'reduce j because the for will increase it again
                         End If
                     Next
                 Next
             Next
-
             lblMessage.Text = "Simulations finished succesfully"
             lblMessage.ForeColor = Color.Green
 
         Catch ex As Exception
             'if any error send a message.
-            lblMessage.Text = "Error running Simulations " & ex.Message
+            lblMessage.Text = "Error running Simulations " & ex.Message & " - Soil Name: " & soil_name & " - Soil Series: " & series_name
             lblMessage.ForeColor = Color.Red
         Finally
             If Not swSoil Is Nothing Then
@@ -427,65 +457,44 @@ Public Class Form1
                 swSoil = Nothing
             End If
 
-            'If Not sw_log Is Nothing Then
-            '    sw_log.Close()
-            '    sw_log.Dispose()
-            '    sw_log = Nothing
-            'End If
-            If errors = False Then SaveFile(Directory.GetCurrentDirectory(), "Results.xls")
+            If Not sw_results Is Nothing Then
+                sw_results.Close()
+                sw_results.Dispose()
+                sw_results = Nothing
+            End If
+            'If errors = False Then SaveFile(Directory.GetCurrentDirectory(), "Results.xlsx")
         End Try
     End Sub
 
     Public Function CoutyInfo(sSql As String) As county_info
         Dim c_i As New county_info
-        'Dim dr As SqlDataReader = Nothing
         Dim dr As DataTable
         dr = service.GetRecord(sSql)
         If dr.Rows.Count = 0 Then
             c_i.lat = 0 : c_i.lon = 0
         Else
             c_i.lat = dr.Rows(0).Item("lat")
-            c_i.lon = dr.Rows(0).Item("long")
+            c_i.lon = dr.Rows(0).Item("lon")
             c_i.code = dr.Rows(0).Item("code")
-            c_i.wind_code = dr.Rows(0).Item("windName").ToString.Split(",")(0)
-            c_i.wind_name = dr.Rows(0).Item("windName").ToString.Split(",")(1)
-            c_i.wp1_code = dr.Rows(0).Item("wp1Name").ToString.Split(",")(0)
-            c_i.wp1_name = dr.Rows(0).Item("wp1Name").ToString.Split(",")(1)
+            'c_i.wind_code = dr.Rows(0).Item("windName").ToString.Split(",")(0)
+            'c_i.wind_name = dr.Rows(0).Item("windName").ToString.Split(",")(1)
+            'c_i.wp1_code = dr.Rows(0).Item("wp1Name").ToString.Split(",")(0)
+            'c_i.wp1_name = dr.Rows(0).Item("wp1Name").ToString.Split(",")(1)
+            c_i.wind_code = dr.Rows(0).Item("wcode")
+            c_i.wind_name = dr.Rows(0).Item("wName").ToString.Trim
+            c_i.wp1_code = dr.Rows(0).Item("wcode")
+            c_i.wp1_name = dr.Rows(0).Item("wName").ToString.Trim
         End If
         Return c_i
     End Function
 
     Private Sub clBox_Click(sender As Object, e As System.EventArgs) Handles clBox.SelectedIndexChanged
-        'Dim checked As CheckState = CheckState.Checked
-
         If sender.selectedIndex = 0 Then
-            'If sender.GetItemCheckState(0) = CheckState.Checked Then
-            '    checked = CheckState.Checked
-            'End If
             For i = 1 To clBox.Items.Count - 1
                 clBox.SetItemChecked(i, sender.GetItemCheckState(0))
             Next
         End If
-        'If sender.GetItemCheckState(sender.selectedIndex) = CheckState.Checked Then
-        '    checked = CheckState.Unchecked
-        'End If
-        'clBox.SetItemChecked(sender.selectedIndex, checked)
     End Sub
-
-    'Public Function GetWeatherCoor(ByVal nlat As Single, ByVal nlon As Single, ByVal latLess As Single, ByVal latPlus As Single, ByVal lonLess As Single, ByVal lonPlus As Single) As SqlDataReader
-    '    Dim sSQL As String = String.Empty
-    '    Dim dr As SqlDataReader = Nothing
-
-    '    Try
-    '        sSQL = "SELECT TOP 1 lat, lon, FileName, initialYear, finalYear, (lat - " & nlat & ") + (lon + " & nlon & ") as distance FROM weatherCoor " & _
-    '               "WHERE lat > " & latLess & " and lat < " & latPlus & " and lon > " & lonLess & " and lon < " & lonPlus & " ORDER BY distance"
-    '        dr = SqlHelper.ExecuteReader(dbConnectString("No"), CommandType.Text, sSQL)
-    '        Return dr
-
-    '    Catch ex As Exception
-    '        Return dr
-    '    End Try
-    'End Function
 
     Public Function GetWeatherInfo(nlat As Single, nlon As Single) As weather_info
         Dim w_i As New weather_info
@@ -493,7 +502,7 @@ Public Class Form1
         Const lonDif As Single = 0.09
         Dim latLess, latPlus, lonLess, lonPlus As Double
         Dim weather2013 As String = "E:\Weather\weatherFiles\US"
-        Dim weather2015 As String = "E:\Weather\weatherFiles\1981-2015"
+        Dim weather2015 As String = "C:\Weather\weatherFiles\1981-2015"
 
         latLess = nlat - latDif : latPlus = nlat + latDif
         lonLess = nlon - lonDif : lonPlus = nlon + lonDif
@@ -576,9 +585,9 @@ Public Class Form1
             currentFile = Path.GetFileName(textFile)
             If Not (currentFile.ToLower = "apexcont.dat" Or currentFile.ToLower = "parm.dat") Then
                 Select Case True
-                    Case currentFile = control_file
+                    Case currentFile.ToLower = control_file.ToLower
                         File.Copy(textFile, apex_current & "\apexcont.dat", True)
-                    Case currentFile = parm_file
+                    Case currentFile.ToLower = parm_file.ToLower
                         File.Copy(textFile, apex_current & "\parm.dat", True)
                     Case Else
                         File.Copy(textFile, apex_current & "\" & currentFile, True)
@@ -596,7 +605,7 @@ Public Class Form1
             weather_file = service.GetWeather(name)
             For Each item In weather_file
                 If first = True Then
-                    nStartYear = item.Substring(0, 4)
+                    nStartYear = item.Substring(0, 6)
                     first = False
                 End If
                 sw.WriteLine(item)
@@ -798,7 +807,7 @@ Public Class Form1
             'sw_log.WriteLine("start Printing Layers")
             'if there are layers those are printed for the current soil before it goes to the nex soil
             If layers.z.Length > 0 Then
-                If layers.z(0) > 10 Then  'if first layer is > than 10 cm then and new layer is added at the begining
+                If Math.Round((layers.z(0) / 100), 2) > 10 / 100 Then  'if first layer is > than 10 cm then and new layer is added at the begining
                     twice = True
                 End If
                 If twice = True Then
@@ -813,7 +822,7 @@ Public Class Form1
                 'sw_log.WriteLine("{0,8:N2}", 10 / 100)
 
                 If twice = True Then
-                    swSoil.Write("{0,8:N2}", layers.bd(0) / 100)
+                    swSoil.Write("{0,8:N2}", layers.bd(0))
                 End If
                 For Each item In layers.bd    'db
                     swSoil.Write("{0,8:N2}", item)
@@ -997,16 +1006,14 @@ Public Class Form1
                 swSoil.WriteLine()
                 swSoil.WriteLine()
                 'sw_log.WriteLine("end printing layers")
-
             End If
-
         Catch ex As Exception
             'sw_log.WriteLine("Error printing layers => " & ex.Message)
         End Try
 
     End Sub
 
-    Private Sub create_subarea_file(slope As Single)
+    Private Sub create_subarea_file(slope As Single, horizgen As String)
         Dim swSubarea As New StreamWriter(apex_current & "\APEX.sub", False)
         Dim slope_length As Single = calcSlopeLength(slope * 100)
         Try
@@ -1018,9 +1025,38 @@ Public Class Form1
             swSubarea.WriteLine("    0.00    0.00    0.00")
             swSubarea.WriteLine("  0.6361    0.00    0.00    0.00    0.00    0.00  0.2000  0.2000       0  0.0000")
             swSubarea.WriteLine("    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00")
-            swSubarea.WriteLine("   0.000    0.00    0.00    0.00    0.00    0.00")
-            swSubarea.WriteLine("  00   0   0   0   0   0   0   0   0   0   0")
-            swSubarea.WriteLine("    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00")
+            swSubarea.WriteLine("   0.000    0.00    0.00    0.00    0.00    0.00   0.000    0.00    0.00    0.00    0.00    0.00    0.00")
+            'changed on 3/20/18 to use autoirrigation just when the check box chk_autoirrigation is checked.
+            If chk_autoirrigation.Checked Then
+                Select Case cb_irrigation_type.SelectedIndex
+                    Case 0  'Sprinkler
+                        swSubarea.Write("  01" & txtInterval.Text.PadLeft(4)) 'And 500 in operation file
+                    Case 1  'Furrow/Flood
+                        swSubarea.Write("  02" & txtInterval.Text.PadLeft(4)) 'And 502 in operation file
+                    Case 2  'Drip
+                        swSubarea.Write("  05" & txtInterval.Text.PadLeft(4))  'And 530 in operation file
+                    Case 3  'Furrow Diking
+                        swSubarea.Write("  02" & txtInterval.Text.PadLeft(4)) 'And 502 in operation file. The difference with Furrow/Flood is the efficiency
+                End Select
+            Else
+                swSubarea.Write("  00   0")
+            End If
+            'changed on 4/9/18 to use tile drain when the check box chk_tile_drain is checked and when drainage type is poorly only. If not poorly never tile drain is set up or if check box not checked.
+            If chk_tile_drain.Checked And horizgen.ToLower.Contains("poorly") Then
+                swSubarea.WriteLine("   0   0   0" & txt_tile_drain.Text.PadLeft(4) & "   0   0   0   0   0")
+            Else
+                swSubarea.WriteLine("   0   0   0   0   0   0   0   0   0")
+            End If
+            'changed on 3/20/18 to use autoirrigation just when the check box chk_autoirrigation is checked.
+            If chk_autoirrigation.Checked Then
+                swSubarea.Write(((100 - txtStress.Text) / 100).ToString("####0.00").PadLeft(8))
+                swSubarea.Write(((100 - txtEfficiency.Text) / 100).ToString("####0.00").PadLeft(8))
+                swSubarea.Write(" 5000.00")
+                swSubarea.Write("    0.00" & (txtApplication.Text * in_to_mm).ToString("####0.00").PadLeft(8))
+                swSubarea.WriteLine("    0.00    0.00    0.00    0.00    0.00")
+            Else
+                swSubarea.WriteLine("    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00")
+            End If
             swSubarea.WriteLine("    1.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00")
             If chkGrazing.Checked Then
                 swSubarea.WriteLine("   1   0   0   0")
@@ -1040,11 +1076,10 @@ Public Class Form1
         End Try
     End Sub
 
-    Private Function run_apex(state As String, county As String, ssa As String, soil_name As String, soil_component As String, soil_key As Integer, slope As Single, mgt As String, parm_file As String, control_file As String, i As UShort) As String
+    Private Function run_apex(state As String, county As String, ssa As String, soil_name As String, soil_component As String, soil_key As Integer, slope As Single, mgt As String, parm_file As String, control_file As String, i As UShort, drainType As String) As String
         Dim APEXResults1 As ScenariosData.APEXResults
         Dim msg = "OK"
         Try
-            'sw_log.WriteLine("Start running process")
             'run the current simualtion
             'Create bat file to run apex for Baseline
             Dim swfile As New StreamWriter(File.OpenWrite(apex_current & "\RunAPEX.bat"))
@@ -1063,14 +1098,10 @@ Public Class Form1
             If File.Exists(apex_current & "\APEX001.MSW") Then File.Delete(apex_current & "\APEX001.MSW")
             If File.Exists(apex_current & "\APEX001.NTT") Then File.Delete(apex_current & "\APEX001.NTT")
 
-            'Run APEX0604 Baseline
-            '_result.message = doAPEXProcess(apex_current & "\RunAPEX.bat")
             _result.message = ExecCmd(apex_current & "\RunAPEX.bat", apex_current)
             If _result.message <> "OK" Then
-                'sw_log.WriteLine("End runing process with error => " & _result.message)
                 Throw New Global.System.Exception("Error running APEX program - " & _result.message)
             Else
-                'sw_log.WriteLine("End runing process")
                 Dim swOutpPutFile As StreamReader = New StreamReader(File.OpenRead(apex_current & "\APEX001.OUT"))
                 Dim outPutFile As String = swOutpPutFile.ReadToEnd
                 If Not outPutFile.Contains("TOTAL RUN TIME") Then
@@ -1097,8 +1128,8 @@ Public Class Form1
             APEXResults1.OtherInfo.management = mgt
             APEXResults1.OtherInfo.param_file = parm_file
             APEXResults1.OtherInfo.control_file = control_file
-            'sw_log.WriteLine("End results totaly")
-            Save_results(APEXResults1, i, "No")
+            APEXResults1.OtherInfo.drainType = drainType
+            Save_results_text(APEXResults1, i, "No")
             Return msg
         Catch ex As Exception
             APEXResults1 = New ScenariosData.APEXResults
@@ -1112,8 +1143,9 @@ Public Class Form1
             APEXResults1.OtherInfo.management = mgt
             APEXResults1.OtherInfo.param_file = parm_file
             APEXResults1.OtherInfo.control_file = control_file
+            APEXResults1.OtherInfo.drainType = drainType
             'sw_log.WriteLine("End results totaly")
-            Save_results(APEXResults1, i, ex.Message)
+            Save_results_text(APEXResults1, i, ex.Message)
             Return ex.Message
         End Try
 
@@ -1123,8 +1155,37 @@ Public Class Form1
         Try
             lblMessage.Text &= " - Management => " & mgt
             lblMessage.ForeColor = Color.Green
-            'sw_log.WriteLine(lblMessage.Text)
-            File.Copy(apex_current & "\" & mgt, apex_current & "\APEX.opc", True)
+            System.IO.File.Copy(apex_current & "\" & mgt, apex_current & "\APEX.opc", True)
+            'if autoirrigation the irrigation type shuold be added to manaagement files.
+            If chk_autoirrigation.Checked Then
+                Dim srFile As StreamReader = New StreamReader(apex_current & "\APEX.opc")
+                Dim swFile As StreamWriter = New StreamWriter(apex_current & "\APEX.tmp")
+
+                swFile.WriteLine(srFile.ReadLine)
+                Dim temp As String = srFile.ReadLine
+                swFile.Write(temp.Substring(0, 4))
+                Select Case cb_irrigation_type.SelectedIndex
+                    Case 0  'Sprinkler
+                        swFile.Write(" 500")
+                    Case 1  'Furrow/Flood
+                        swFile.Write(" 502")
+                    Case 2  'Drip
+                        swFile.Write(" 530")
+                    Case 3  'Furrow Diking
+                        swFile.Write(" 502")
+                End Select
+                swFile.WriteLine("")
+                Do While srFile.EndOfStream <> True
+                    swFile.WriteLine(srFile.ReadLine)
+                Loop
+                srFile.Close()
+                srFile.Dispose()
+                srFile = Nothing
+                swFile.Close()
+                swFile.Dispose()
+                swFile = Nothing
+                System.IO.File.Copy(apex_current & "\APEX.tmp", apex_current & "\APEX.opc", True)
+            End If
         Catch ex As Exception
         Finally
         End Try
@@ -1167,6 +1228,7 @@ Public Class Form1
             Return "OK"
         Catch ex As Exception
             MsgBox(Err.Description & " " & cmdline)
+            Return ex.Message
         Finally
             curdrive = Strings.Left(currentDir, 2)
             ChDrive(CStr(curdrive))
@@ -1270,15 +1332,15 @@ Public Class Form1
 
     Public Function ReadAPEXResults() As ScenariosData.APEXResults
         Dim tempa, YearAnt() As String
-        Dim i, Sub1, k, m(0), n, APEXStartYear, l, index As Integer
+        Dim i, Sub1, m(0), n, APEXStartYear, l, index As Integer
         Dim APEXResults1 As New ScenariosData.APEXResults
         Dim found As Boolean
         Dim totalArea As Single
         Dim resultFS(11) As Single
-        Dim srfile As StreamReader
+        Dim srfile As StreamReader = Nothing
         Dim ddCYR1 As Integer = 0
         Dim ddNBYR1 As Integer = 0
-        Dim crop1() As ScenariosData.Crops
+        'Dim crop1() As ScenariosData.Crops
         Dim dr As SqlDataReader = Nothing
         Const ha_ac As Single = 2.471053814672
         'Dim dsResults As New DataSet
@@ -1304,6 +1366,7 @@ Public Class Form1
             ReDim APEXResults1.SoilResults(0).CountCrops(10)
             ReDim APEXResults1.SoilResults(0).Yields(10)
             ReDim APEXResults1.SoilResults(0).bioms(10)
+            ReDim APEXResults1.SoilResults(0).stl(10)
             ReDim YearAnt(0)
             index = 0
 
@@ -1329,6 +1392,7 @@ Public Class Form1
                     ReDim Preserve APEXResults1.SoilResults(Sub1)
                     ReDim APEXResults1.SoilResults(Sub1).Yields(10)
                     ReDim APEXResults1.SoilResults(Sub1).bioms(10)
+                    ReDim APEXResults1.SoilResults(Sub1).stl(10)
                     ReDim APEXResults1.SoilResults(Sub1).CountCrops(10)
                     ReDim m(Sub1)
                     index = Sub1
@@ -1349,8 +1413,10 @@ Public Class Form1
                         APEXResults1.SoilResults(Sub1).NO3 = APEXResults1.SoilResults(Sub1).NO3 + (Val(Mid(tempa, 68, 9)) * kg_lbs / ha_ac)
                         APEXResults1.SoilResults(Sub1).tileDrainFlow = APEXResults1.SoilResults(Sub1).tileDrainFlow + Val(Mid(tempa, 127, 9)) * mm_in
                         APEXResults1.SoilResults(Sub1).tileDrainN = APEXResults1.SoilResults(Sub1).tileDrainN + (Val(Mid(tempa, 145, 9)) * kg_lbs / ha_ac)
+                        APEXResults1.SoilResults(Sub1).tileDrainP = APEXResults1.SoilResults(Sub1).tileDrainP + (Val(Mid(tempa, 264, 9)) * kg_lbs / ha_ac)
 
                         If Sub1 <> 0 Then
+                            APEXResults1.SoilResults(Sub1).avol = APEXResults1.SoilResults(Sub1).avol + (Val(Mid(tempa, 23, 9)) * kg_lbs / ha_ac)
                             APEXResults1.SoilResults(Sub1).deepPerFlow = APEXResults1.SoilResults(Sub1).deepPerFlow + Val(Mid(tempa, 136, 9)) * mm_in
                             APEXResults1.SoilResults(Sub1).LeachedP = APEXResults1.SoilResults(Sub1).LeachedP + (Val(Mid(tempa, 110, 9)) * kg_lbs / ha_ac)
                             APEXResults1.SoilResults(Sub1).LeachedN = APEXResults1.SoilResults(Sub1).LeachedN + (Val(Mid(tempa, 14, 9)) * kg_lbs / ha_ac)
@@ -1366,6 +1432,7 @@ Public Class Form1
                             APEXResults1.SoilResults(Sub1).pcp = APEXResults1.SoilResults(Sub1).pcp + Val(Mid(tempa, 230, 9)) * mm_in
 
                             'APEXResults1.SoilResults(0).tileDrainFlow = APEXResults1.SoilResults(0).tileDrainFlow + Val(Mid(tempa, 127, 9)) * mm_in
+                            APEXResults1.SoilResults(0).avol = APEXResults1.SoilResults(0).avol + (Val(Mid(tempa, 23, 9)) * kg_lbs / ha_ac)
                             APEXResults1.SoilResults(0).deepPerFlow = APEXResults1.SoilResults(0).deepPerFlow + Val(Mid(tempa, 136, 9)) * mm_in
                             APEXResults1.SoilResults(0).LeachedP = APEXResults1.SoilResults(0).LeachedP + (Val(Mid(tempa, 110, 9)) * kg_lbs / ha_ac)
                             APEXResults1.SoilResults(0).LeachedN = APEXResults1.SoilResults(0).LeachedN + (Val(Mid(tempa, 14, 9)) * kg_lbs / ha_ac)
@@ -1404,12 +1471,14 @@ Public Class Form1
                         If APEXResults1.Crops(i) = Mid(tempa, 88, 4) Then
                             found = True
                             If Val(Mid(tempa, 101, 9)) <= 0 And Val(Mid(tempa, 92, 9)) <= 0 Then Continue For
-                            If APEXResults1.SoilResults(0).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(0).Yields(i) : ReDim Preserve APEXResults1.SoilResults(0).bioms(i)
+                            If APEXResults1.SoilResults(0).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(0).Yields(i) : ReDim Preserve APEXResults1.SoilResults(0).bioms(i) : ReDim Preserve APEXResults1.SoilResults(0).stl(i)
                             APEXResults1.SoilResults(0).Yields(i) = APEXResults1.SoilResults(0).Yields(i) + ((Val(Mid(tempa, 101, 9)) + Val(Mid(tempa, 92, 9))))
                             APEXResults1.SoilResults(0).bioms(i) = APEXResults1.SoilResults(0).bioms(i) + (Val(Mid(tempa, 323, 8)) * tha_tac)
-                            If APEXResults1.SoilResults(Sub1).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(Sub1).Yields(i) : ReDim Preserve APEXResults1.SoilResults(Sub1).Yields(i)
+                            APEXResults1.SoilResults(0).stl(i) = APEXResults1.SoilResults(0).stl(i) + (Val(Mid(tempa, 333, 8)) * tha_tac)
+                            If APEXResults1.SoilResults(Sub1).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(Sub1).Yields(i) : ReDim Preserve APEXResults1.SoilResults(Sub1).bioms(i) : ReDim Preserve APEXResults1.SoilResults(Sub1).stl(i)
                             APEXResults1.SoilResults(Sub1).Yields(i) = APEXResults1.SoilResults(Sub1).Yields(i) + ((Val(Mid(tempa, 101, 9)) + Val(Mid(tempa, 92, 9))))
                             APEXResults1.SoilResults(Sub1).bioms(i) = APEXResults1.SoilResults(Sub1).bioms(i) + (Val(Mid(tempa, 323, 8)) * tha_tac)
+                            APEXResults1.SoilResults(Sub1).stl(i) = APEXResults1.SoilResults(Sub1).stl(i) + (Val(Mid(tempa, 333, 8)) * tha_tac)
                             If APEXResults1.SoilResults(Sub1).CountCrops.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(Sub1).CountCrops(i)
                             APEXResults1.SoilResults(Sub1).CountCrops(i) = APEXResults1.SoilResults(Sub1).CountCrops(i) + 1
                             If APEXResults1.SoilResults(0).CountCrops.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(0).CountCrops(i)
@@ -1421,16 +1490,19 @@ Public Class Form1
                     If found = False Then
                         If APEXResults1.Crops(0) = "" Then i = 0
                         ReDim Preserve APEXResults1.Crops(i)
-                        If APEXResults1.SoilResults(0).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(0).Yields(i) : ReDim Preserve APEXResults1.SoilResults(0).bioms(i)
+                        If APEXResults1.SoilResults(0).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(0).Yields(i) : ReDim Preserve APEXResults1.SoilResults(0).bioms(i) : ReDim Preserve APEXResults1.SoilResults(0).stl(i)
                         APEXResults1.SoilResults(0).Yields(i) = ((Val(Mid(tempa, 101, 9)) + Val(Mid(tempa, 92, 9))))
                         APEXResults1.SoilResults(0).bioms(i) = Val(Mid(tempa, 323, 8)) * tha_tac
+                        APEXResults1.SoilResults(0).stl(i) = Val(Mid(tempa, 333, 8)) * tha_tac
                         If APEXResults1.SoilResults(0).CountCrops.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(0).CountCrops(i)
                         APEXResults1.SoilResults(0).CountCrops(i) = APEXResults1.SoilResults(0).CountCrops(i) + 1
-                        If APEXResults1.SoilResults(Sub1).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(Sub1).Yields(i) : ReDim Preserve APEXResults1.SoilResults(0).bioms(i)
+                        If APEXResults1.SoilResults(Sub1).Yields.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(Sub1).Yields(i) : ReDim Preserve APEXResults1.SoilResults(Sub1).bioms(i) : ReDim Preserve APEXResults1.SoilResults(Sub1).stl(i)
                         APEXResults1.SoilResults(Sub1).Yields(i) = ((Val(Mid(tempa, 101, 9)) + Val(Mid(tempa, 92, 9))))
                         APEXResults1.SoilResults(Sub1).bioms(i) = (Val(Mid(tempa, 323, 9)) * tha_tac)
+                        APEXResults1.SoilResults(Sub1).stl(i) = (Val(Mid(tempa, 333, 9)) * tha_tac)
                         If APEXResults1.SoilResults(Sub1).CountCrops.Length - 1 < i Then ReDim Preserve APEXResults1.SoilResults(Sub1).CountCrops(i)
                         APEXResults1.SoilResults(Sub1).CountCrops(i) = APEXResults1.SoilResults(Sub1).CountCrops(i) + 1
+
                         APEXResults1.Crops(i) = Mid(tempa, 88, 4)
                         found = True
                     End If
@@ -1445,6 +1517,7 @@ Public Class Form1
                 For i = 0 To APEXResults1.SoilResults(n).CountCrops.GetUpperBound(0)
                     APEXResults1.SoilResults(n).Yields(i) = APEXResults1.SoilResults(n).Yields(i) / APEXResults1.SoilResults(n).CountCrops(i)
                     APEXResults1.SoilResults(n).bioms(i) = APEXResults1.SoilResults(n).bioms(i) / APEXResults1.SoilResults(n).CountCrops(i)
+                    APEXResults1.SoilResults(n).stl(i) = APEXResults1.SoilResults(n).stl(i) / APEXResults1.SoilResults(n).CountCrops(i)
                 Next
                 '// Get averages for each value
                 APEXResults1.SoilResults(n).flow = APEXResults1.SoilResults(n).flow / m(n)
@@ -1456,6 +1529,7 @@ Public Class Form1
                 APEXResults1.SoilResults(n).LeachedP = APEXResults1.SoilResults(n).LeachedP / (m(n) * index)
                 APEXResults1.SoilResults(n).OrgN = APEXResults1.SoilResults(n).OrgN / m(n)
                 APEXResults1.SoilResults(n).NO3 = APEXResults1.SoilResults(n).NO3 / m(n)
+                APEXResults1.SoilResults(n).avol = APEXResults1.SoilResults(n).avol / (m(n) * index)
                 APEXResults1.SoilResults(n).LeachedN = APEXResults1.SoilResults(n).LeachedN / (m(n) * index)
                 APEXResults1.SoilResults(n).tileDrainN = APEXResults1.SoilResults(n).tileDrainN / m(n)
                 APEXResults1.SoilResults(n).tileDrainP = APEXResults1.SoilResults(n).tileDrainP / m(n)
@@ -1468,21 +1542,21 @@ Public Class Form1
                 APEXResults1.SoilResults(n).et = APEXResults1.SoilResults(n).et / (m(n) * index)
                 APEXResults1.SoilResults(n).pcp = APEXResults1.SoilResults(n).pcp / (m(n) * index)
                 APEXResults1.SoilResults(n).soil_water = APEXResults1.SoilResults(n).soil_water / (m(n) * index)
-                'CALCULATE tile drain P
-                If APEXResults1.SoilResults(n).tileDrainN > 0 Then
-                    If APEXResults1.SoilResults(n).LeachedN > 0 Then
-                        APEXResults1.SoilResults(n).tileDrainP = APEXResults1.SoilResults(n).tileDrainN * 0.07
+                'CALCULATE tile drain P. No anymore tile drain P is taking from NTT file
+                'If APEXResults1.SoilResults(n).tileDrainN > 0 Then
+                '    If APEXResults1.SoilResults(n).LeachedN > 0 Then
+                '        APEXResults1.SoilResults(n).tileDrainP = APEXResults1.SoilResults(n).tileDrainN * 0.07
 
-                        'sTemp1 = APEXResults1.SoilResults(n).LeachedN / APEXResults1.SoilResults(n).tileDrainN * 100
-                        'sTemp2 = 100 - sTemp1
-                        'sTemp1 = APEXResults1.SoilResults(n).LeachedP * sTemp2 / sTemp1
-                        'APEXResults1.SoilResults(n).tileDrainP = sTemp1 - APEXResults1.SoilResults(n).LeachedP
-                    Else
-                        APEXResults1.SoilResults(n).tileDrainP = APEXResults1.SoilResults(n).tileDrainN * 0.07
-                    End If
-                Else
-                    APEXResults1.SoilResults(n).tileDrainP = 0
-                End If
+                '        'sTemp1 = APEXResults1.SoilResults(n).LeachedN / APEXResults1.SoilResults(n).tileDrainN * 100
+                '        'sTemp2 = 100 - sTemp1
+                '        'sTemp1 = APEXResults1.SoilResults(n).LeachedP * sTemp2 / sTemp1
+                '        'APEXResults1.SoilResults(n).tileDrainP = sTemp1 - APEXResults1.SoilResults(n).LeachedP
+                '    Else
+                '        APEXResults1.SoilResults(n).tileDrainP = APEXResults1.SoilResults(n).tileDrainN * 0.07
+                '    End If
+                'Else
+                '    APEXResults1.SoilResults(n).tileDrainP = 0
+                'End If
             Next
 
             srfile.Close()
@@ -1557,203 +1631,416 @@ Public Class Form1
             APEXResults1.message = "Error 405 - " & ex.Message & " Read results process.'"
             'sw_log.WriteLine("Error reading results")
             Return APEXResults1
+        Finally
+            If Not srfile Is Nothing Then
+                srfile.Close()
+                srfile.Dispose()
+                srfile = Nothing
+            End If
         End Try
 
     End Function
 
-    Private Sub create_excel_file(sheet As String)
-        xlApp = CreateObject("Excel.Application")
-        wb = xlApp.Workbooks.Add
-        ws = wb.Worksheets(sheet) 'Specify your worksheet name
+    'Private Sub create_excel_file()
+    '    row_number = 1
+    '    Dim i As UShort = row_number
+    '    Dim j As UShort = 1
+
+    '    ws.Cells._Default(i, j) = "ID"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Observation"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "State"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "County"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "SSA"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Soil Name"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Soil Key"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Soil Component"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Slope"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Management"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Parm File"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Control File"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Drain Type"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Org N"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "NO3_N"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Tile Drain N"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Org P"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "PO4_P"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Tile Drain P"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Flow"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Tile Drain Flow"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Sediment"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Manure Erosion"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Deep Percolation"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "N2O"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "CO2"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Percolation(in)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Deep Per(in)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Water Yield(in)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "PET(in)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "ET(in)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Precipitation(in)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Soil Water(in)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop1"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop Yield1"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Biomas(t/ac)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop2"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop Yield2"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Biomas(t/ac)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop3"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop Yield3"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Biomas(t/ac)"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop4"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Crop Yield4"
+    '    j += 1
+    '    ws.Cells._Default(i, j) = "Biomas(t/ac)"
+    'End Sub
+
+    Private Sub create_titles_file()
+        Dim row As New System.Text.StringBuilder
         row_number = 1
         Dim i As UShort = row_number
-        Dim j As UShort = 1
 
-        ws.Cells._Default(i, j) = "ID"
-        j += 1
-        ws.Cells._Default(i, j) = "Observation"
-        j += 1
-        ws.Cells._Default(i, j) = "State"
-        j += 1
-        ws.Cells._Default(i, j) = "County"
-        j += 1
-        ws.Cells._Default(i, j) = "SSA"
-        j += 1
-        ws.Cells._Default(i, j) = "Soil Name"
-        j += 1
-        ws.Cells._Default(i, j) = "Soil Key"
-        j += 1
-        ws.Cells._Default(i, j) = "Soil Component"
-        j += 1
-        ws.Cells._Default(i, j) = "Slope"
-        j += 1
-        ws.Cells._Default(i, j) = "Management"
-        j += 1
-        ws.Cells._Default(i, j) = "Parm File"
-        j += 1
-        ws.Cells._Default(i, j) = "Control File"
-        j += 1
-        ws.Cells._Default(i, j) = "Org N"
-        j += 1
-        ws.Cells._Default(i, j) = "NO3_N"
-        j += 1
-        ws.Cells._Default(i, j) = "Tile Drain N"
-        j += 1
-        ws.Cells._Default(i, j) = "Org P"
-        j += 1
-        ws.Cells._Default(i, j) = "PO4_P"
-        j += 1
-        ws.Cells._Default(i, j) = "Tile Drain P"
-        j += 1
-        ws.Cells._Default(i, j) = "Flow"
-        j += 1
-        ws.Cells._Default(i, j) = "Tile Drain Flow"
-        j += 1
-        ws.Cells._Default(i, j) = "Sediment"
-        j += 1
-        ws.Cells._Default(i, j) = "Manure Erosion"
-        j += 1
-        ws.Cells._Default(i, j) = "Deep Percolation"
-        j += 1
-        ws.Cells._Default(i, j) = "N2O"
-        j += 1
-        ws.Cells._Default(i, j) = "CO2"
-        j += 1
-        ws.Cells._Default(i, j) = "Percolation(in)"
-        j += 1
-        ws.Cells._Default(i, j) = "Deep Per(in)"
-        j += 1
-        ws.Cells._Default(i, j) = "Water Yield(in)"
-        j += 1
-        ws.Cells._Default(i, j) = "PET(in)"
-        j += 1
-        ws.Cells._Default(i, j) = "ET(in)"
-        j += 1
-        ws.Cells._Default(i, j) = "Precipitation(in)"
-        j += 1
-        ws.Cells._Default(i, j) = "Soil Water(in)"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop1"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop Yield1"
-        j += 1
-        ws.Cells._Default(i, j) = "Biomas(t/ac)"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop2"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop Yield2"
-        j += 1
-        ws.Cells._Default(i, j) = "Biomas(t/ac)"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop3"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop Yield3"
-        j += 1
-        ws.Cells._Default(i, j) = "Biomas(t/ac)"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop4"
-        j += 1
-        ws.Cells._Default(i, j) = "Crop Yield4"
-        j += 1
-        ws.Cells._Default(i, j) = "Biomas(t/ac)"
+        row.Append("ID")
+        row.Append("|")
+        row.Append("Observation")
+        row.Append("|")
+        row.Append("State")
+        row.Append("|")
+        row.Append("County")
+        row.Append("|")
+        row.Append("SSA")
+        row.Append("|")
+        row.Append("Soil Name")
+        row.Append("|")
+        row.Append("Soil Key")
+        row.Append("|")
+        row.Append("Soil Component")
+        row.Append("|")
+        row.Append("Slope")
+        row.Append("|")
+        row.Append("Management")
+        row.Append("|")
+        row.Append("Parm File")
+        row.Append("|")
+        row.Append("Control File")
+        row.Append("|")
+        row.Append("Drain Type")
+        row.Append("|")
+        row.Append("Org N")
+        row.Append("|")
+        row.Append("NO3_N")
+        row.Append("|")
+        row.Append("Tile Drain N")
+        row.Append("|")
+        row.Append("Org P")
+        row.Append("|")
+        row.Append("PO4_P")
+        row.Append("|")
+        row.Append("Tile Drain P")
+        row.Append("|")
+        row.Append("Flow")
+        row.Append("|")
+        row.Append("Tile Drain Flow")
+        row.Append("|")
+        row.Append("Sediment")
+        row.Append("|")
+        row.Append("Manure Erosion")
+        row.Append("|")
+        row.Append("Deep Percolation")
+        row.Append("|")
+        row.Append("N2O")
+        row.Append("|")
+        row.Append("CO2")
+        row.Append("|")
+        row.Append("Percolation(in)")
+        row.Append("|")
+        row.Append("Deep Per(in)")
+        row.Append("|")
+        row.Append("Water Yield(in)")
+        row.Append("|")
+        row.Append("PET(in)")
+        row.Append("|")
+        row.Append("ET(in)")
+        row.Append("|")
+        row.Append("Precipitation(in)")
+        row.Append("|")
+        row.Append("Soil Water(in)")
+        row.Append("|")
+        row.Append("Nitrogen Volatilitization")
+        row.Append("|")
+        row.Append("Crop1")
+        row.Append("|")
+        row.Append("Crop Yield1")
+        row.Append("|")
+        row.Append("Biomas(t/ac)")
+        row.Append("|")
+        row.Append("Max STL(t/ac)")
+        row.Append("|")
+        row.Append("Crop2")
+        row.Append("|")
+        row.Append("Crop Yield2")
+        row.Append("|")
+        row.Append("Biomas(t/ac)")
+        row.Append("|")
+        row.Append("Max STL(t/ac)")
+        row.Append("|")
+        row.Append("Crop3")
+        row.Append("|")
+        row.Append("Crop Yield3")
+        row.Append("|")
+        row.Append("Biomas(t/ac)")
+        row.Append("|")
+        row.Append("Max STL(t/ac)")
+        row.Append("|")
+        row.Append("Crop4")
+        row.Append("|")
+        row.Append("Crop Yield4")
+        row.Append("|")
+        row.Append("Biomas(t/ac)")
+        row.Append("|")
+        row.Append("Max STL(t/ac)")
+        sw_results.WriteLine(row)
     End Sub
 
-    Public Sub Save_results(results As ScenariosData.APEXResults, id As UShort, err As String)
-        Dim i As UShort
-        Dim j As UShort = 1
+    Public Sub Save_results_text(results As ScenariosData.APEXResults, id As UShort, err As String)
+        Dim row As New System.Text.StringBuilder
+        Dim i As UInteger
         row_number += 1
+
         Try
-            'sw_log.WriteLine("Start Saving Results")
+            row.Length = 0
             i = row_number
             If id > 0 Then
-                ws.Cells._Default(i, j) = id
+                row.Append(id)
             Else
-                ws.Cells._Default(i, j) = i - 1
+                row.Append(i - 1)
             End If
-            j += 1
-            ws.Cells._Default(i, j) = err
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.state
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.county
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.ssa
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.soil_name
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.soil_key
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.soil_component
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.soil_slope
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.management
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.param_file
-            j += 1
-            ws.Cells._Default(i, j) = results.OtherInfo.control_file
-            j += 1
+            row.Append("|")
+            row.Append(err)
+            row.Append("|")
+            row.Append(results.OtherInfo.state)
+            row.Append("|")
+            row.Append(results.OtherInfo.county)
+            row.Append("|")
+            row.Append(results.OtherInfo.ssa)
+            row.Append("|")
+            row.Append(results.OtherInfo.soil_name)
+            row.Append("|")
+            row.Append(results.OtherInfo.soil_key)
+            row.Append("|")
+            row.Append(results.OtherInfo.soil_component)
+            row.Append("|")
+            row.Append(results.OtherInfo.soil_slope)
+            row.Append("|")
+            row.Append(results.OtherInfo.management)
+            row.Append("|")
+            row.Append(results.OtherInfo.param_file)
+            row.Append("|")
+            row.Append(results.OtherInfo.control_file)
+            row.Append("|")
+            row.Append(results.OtherInfo.drainType)
+            row.Append("|")
             If err = "No" Then
-                ws.Cells._Default(i, j) = results.SoilResults(0).OrgN
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).NO3
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).tileDrainN
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).OrgP
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).PO4
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).tileDrainP
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).flow
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).tileDrainFlow
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).Sediment
-                j += 1
-                ws.Cells._Default(i, j) = 0  'no set for now
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).deepPerFlow
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).n2o
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).co2
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).percolation
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).deepPerFlow
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).water_yield
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).pet
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).et
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).pcp
-                j += 1
-                ws.Cells._Default(i, j) = results.SoilResults(0).soil_water
-                j += 1
+                row.Append(results.SoilResults(0).OrgN)
+                row.Append("|")
+                row.Append(results.SoilResults(0).NO3)
+                row.Append("|")
+                row.Append(results.SoilResults(0).tileDrainN)
+                row.Append("|")
+                row.Append(results.SoilResults(0).OrgP)
+                row.Append("|")
+                row.Append(results.SoilResults(0).PO4)
+                row.Append("|")
+                row.Append(results.SoilResults(0).tileDrainP)
+                row.Append("|")
+                row.Append(results.SoilResults(0).flow)
+                row.Append("|")
+                row.Append(results.SoilResults(0).tileDrainFlow)
+                row.Append("|")
+                row.Append(results.SoilResults(0).Sediment)
+                row.Append("|")
+                row.Append(0)  'no set for now
+                row.Append("|")
+                row.Append(results.SoilResults(0).deepPerFlow)
+                row.Append("|")
+                row.Append(results.SoilResults(0).n2o)
+                row.Append("|")
+                row.Append(results.SoilResults(0).co2)
+                row.Append("|")
+                row.Append(results.SoilResults(0).percolation)
+                row.Append("|")
+                row.Append(results.SoilResults(0).deepPerFlow)
+                row.Append("|")
+                row.Append(results.SoilResults(0).water_yield)
+                row.Append("|")
+                row.Append(results.SoilResults(0).pet)
+                row.Append("|")
+                row.Append(results.SoilResults(0).et)
+                row.Append("|")
+                row.Append(results.SoilResults(0).pcp)
+                row.Append("|")
+                row.Append(results.SoilResults(0).soil_water)
+                row.Append("|")
+                row.Append(results.SoilResults(0).avol)
+                row.Append("|")
                 For k = 0 To results.Crops.Count - 1
-                    ws.Cells._Default(i, j) = results.Crops(k)
-                    j += 1
-                    ws.Cells._Default(i, j) = results.SoilResults(0).Yields(k)
-                    j += 1
-                    ws.Cells._Default(i, j) = results.SoilResults(0).bioms(k)
-                    j += 1
+                    row.Append(results.Crops(k))
+                    row.Append("|")
+                    row.Append(results.SoilResults(0).Yields(k))
+                    row.Append("|")
+                    row.Append(results.SoilResults(0).bioms(k))
+                    row.Append("|")
+                    row.Append(results.SoilResults(0).stl(k))
+                    row.Append("|")
                 Next
-            Else
-                'sw_log.WriteLine(err)
             End If
-
-            'sw_log.WriteLine("End Saving Results")
-
+            sw_results.WriteLine(row)
         Catch ex As Exception
-            'sw_log.WriteLine("Problem Saving Results")
         Finally
-
         End Try
+
     End Sub
+
+    'Public Sub Save_results(results As ScenariosData.APEXResults, id As UShort, err As String)
+    '    Dim i As UShort
+    '    Dim j As UShort = 1
+    '    row_number += 1
+    '    Try
+    '        'sw_log.WriteLine("Start Saving Results")
+    '        i = row_number
+    '        If id > 0 Then
+    '            ws.Cells._Default(i, j) = id
+    '        Else
+    '            ws.Cells._Default(i, j) = i - 1
+    '        End If
+    '        j += 1
+    '        ws.Cells._Default(i, j) = err
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.state
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.county
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.ssa
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.soil_name
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.soil_key
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.soil_component
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.soil_slope
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.management
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.param_file
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.control_file
+    '        j += 1
+    '        ws.Cells._Default(i, j) = results.OtherInfo.drainType
+    '        j += 1
+    '        If err = "No" Then
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).OrgN
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).NO3
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).tileDrainN
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).OrgP
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).PO4
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).tileDrainP
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).flow
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).tileDrainFlow
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).Sediment
+    '            j += 1
+    '            ws.Cells._Default(i, j) = 0  'no set for now
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).deepPerFlow
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).n2o
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).co2
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).percolation
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).deepPerFlow
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).water_yield
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).pet
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).et
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).pcp
+    '            j += 1
+    '            ws.Cells._Default(i, j) = results.SoilResults(0).soil_water
+    '            j += 1
+    '            For k = 0 To results.Crops.Count - 1
+    '                ws.Cells._Default(i, j) = results.Crops(k)
+    '                j += 1
+    '                ws.Cells._Default(i, j) = results.SoilResults(0).Yields(k)
+    '                j += 1
+    '                ws.Cells._Default(i, j) = results.SoilResults(0).bioms(k)
+    '                j += 1
+    '            Next
+    '        Else
+    '            'sw_log.WriteLine(err)
+    '        End If
+
+    '        'sw_log.WriteLine("End Saving Results")
+
+    '    Catch ex As Exception
+    '        'sw_log.WriteLine("Problem Saving Results")
+    '    Finally
+
+    '    End Try
+    'End Sub
 
     Private Sub SaveFile(filePath As String, fileName As String)
         Dim fileToSave As String = Path.Combine(filePath, fileName)
@@ -1761,13 +2048,13 @@ Public Class Form1
             If Dir(fileToSave) <> "" Then
                 File.Delete(fileToSave)
             End If
-            wb.SaveAs(fileToSave)
-            MsgBox("Your " & fileName.Replace(".xls", "") & " File has been Saved as " & fileToSave, MsgBoxStyle.OkOnly, Me.Name & fileName.Replace(".xls", "") & "_Click")
+            'wb.SaveAs(fileToSave)
+            MsgBox("Your " & fileName.Replace(".xlsx", "") & " File has been Saved as " & fileToSave, MsgBoxStyle.OkOnly, Me.Name & fileName.Replace(".xlsx", "") & "_Click")
         Catch ex As Exception
             MsgBox(ex.Message & " - " & fileToSave, MsgBoxStyle.OkOnly, Me.Name & fileName & " _Click")
         Finally
-            releaseObject(wb, 1)
-            releaseObject(xlApp, 0)
+            'releaseObject(wb, 1)
+            'releaseObject(xlApp, 0)
         End Try
     End Sub
 
@@ -1880,31 +2167,42 @@ Public Class Form1
     End Sub
 
     Private Sub btnRuns_Click(sender As System.Object, e As System.EventArgs) Handles btnRuns.Click
-        Dim results_file As String = Path.Combine(Directory.GetCurrentDirectory(), "Results.xls")
+        Dim sr_results As StreamReader = New StreamReader(Directory.GetCurrentDirectory() & "\Results.txt")
+        'Dim results_file As String = Path.Combine(Directory.GetCurrentDirectory(), "Results.xlsx")
+
         Try
             gbRuns.Visible = True
             gbInitialRun.Visible = False
 
-            xlApp1 = New Microsoft.Office.Interop.Excel.Application
-            wb1 = xlApp1.Workbooks.Open(results_file)
-            ws1 = wb1.Worksheets("Sheet1") 'Specify your worksheet name
+            'xlApp2 = New Microsoft.Office.Interop.Excel.Application
+            'wb2 = xlApp2.Workbooks.Open(results_file)
+            'ws2 = wb2.Worksheets("Sheet1") 'Specify your worksheet name
             Dim i As UShort = 2
-            If results_file Is Nothing Or results_file = "" Or results_file = String.Empty Then Exit Sub
+            'If results_file Is Nothing Or results_file = "" Or results_file = String.Empty Then Exit Sub
+            If sr_results Is Nothing Then Exit Sub
             clbRuns.Items.Clear()
-            With ws1
-                Do While .Cells(i, 1).value <> 0 And Not (.Cells(i, 1).value Is Nothing)
-                    clbRuns.Items.Add(.Cells(i, 1).value)
-                    i += 1
-                Loop
-            End With
-            'releaseObject(wb1, 1)
-            'releaseObject(xlApp, 0)
+            'With ws2
+            Dim temp As String = String.Empty
+            'Do While .Cells(i, 1).value <> 0 And Not (.Cells(i, 1).value Is Nothing)
+            '    clbRuns.Items.Add(.Cells(i, 1).value)
+            '    i += 1
+            'Loop
+            Do While sr_results.EndOfStream <> True
+                temp = sr_results.ReadLine
+                clbRuns.Items.Add(temp.Split("|")(0))
+            Loop
+            'End With
         Catch ex As Exception
-            releaseObject(wb1, 1)
-            releaseObject(xlApp1, 0)
         Finally
-            'releaseObject(wb1, 1)
-            'releaseObject(xlApp, 0)
+            'ws2 = Nothing
+            'wb2.Close()
+            'System.Runtime.InteropServices.Marshal.ReleaseComObject(wb2)
+            'wb2 = Nothing
+            'releaseObject(wb2, 1)
+            'releaseObject(xlApp2, 0)
+            'xlApp2.Quit()
+            'System.Runtime.InteropServices.Marshal.ReleaseComObject(xlApp2)
+            'xlApp2 = Nothing
         End Try
 
     End Sub
@@ -1935,7 +2233,7 @@ Public Class Form1
         Dim layer_number As UShort = 0
         Dim depth As Single = 999
         Dim name As String = String.Empty
-        Dim results_file As String = Path.Combine(Directory.GetCurrentDirectory(), "Results.xls")
+        Dim results_file As String = Path.Combine(Directory.GetCurrentDirectory(), "Results.xlsx")
         Dim i As UShort = 0
         Dim ssa_code As String
         Dim slope As Single = 0
@@ -1947,75 +2245,73 @@ Public Class Form1
         Dim muid As Integer = 0
         Dim state As String = String.Empty
         Dim msg As String = "OK"
+        Dim horizgen As String = String.Empty
+        Dim sr_results As StreamReader = New StreamReader(Directory.GetCurrentDirectory() & "\Results.txt")
 
         Try
+            sw_results = New StreamWriter(Directory.GetCurrentDirectory() & "\Results_individual.txt")
             If clbRuns.CheckedItems.Count <= 0 Then lblMessage.Text = "Please check one id from the runs list" : lblMessage.ForeColor = Color.Red : Exit Sub
             If results_file Is Nothing Or results_file = "" Or results_file = String.Empty Then Exit Sub
-            xlApp = New Microsoft.Office.Interop.Excel.Application
-            wb = xlApp.Workbooks.Open(results_file)
-            ws = wb.Worksheets("Sheet1") 'Specify your worksheet name
-            'initialize log file
-            'sw_log = New StreamWriter(apex_current & "\log.log")
-            create_excel_file("Sheet1")
+            create_titles_file()
+            sr_results.ReadLine()  'read titles
+            Dim temp() As String = Nothing
+            For j = 0 To clbRuns.CheckedItems.Count - 1
+                temp = sr_results.ReadLine.Split("|")
+                i = clbRuns.CheckedItems(j) + 1
+                'create the excel file in memory before the simulations start.
+                county_code = temp(3)
+                'Read all of the counties selected and take code and center coordinates.
+                'Dim sSql As String = "SELECT TOP 1 * FROM County_Extended WHERE StateAbrev like '" & Split(temp(2), "-")(1).Trim & "%' AND [Code] like '" & county_code.Trim & "%' ORDER BY [Name]"
+                Dim sSql As String = "SELECT code, lon, lat, wcode, wname FROM County, CountyCoor, CountyWp1 WHERE StateAbrev like '" & Split(cbStates.SelectedItem, "-")(1).Trim & "%' AND [Code] like '" & county_code.Trim & "%' AND County.code = CountyCoor.County and County.code = CountyWp1.County"
+                county_info = CoutyInfo(sSql)
 
-            With ws1
-                For j = 0 To clbRuns.CheckedItems.Count - 1
-                    i = clbRuns.CheckedItems(j) + 1
-                    'If .Cells(i, 1).value = clbRuns.SelectedItem Then
-                    'create the excel file in memory before the simulations start.
-                    county_code = .Cells(i, 4).value
-                    'Read all of the counties selected and take code and center coordinates.
-                    Dim sSql As String = "SELECT TOP 1 * FROM County_Extended WHERE StateAbrev like '" & Split(.Cells(i, 3).value, "-")(1).Trim & "%' AND [Code] like '" & county_code.Trim & "%' ORDER BY [Name]"
+                'county_info = CoutyInfo(sSql)
+                If county_info.lon = 0 And county_info.lat = 0 Then Continue For
+                weather_info = GetWeatherInfo(county_info.lat, county_info.lon)
+                ssa_code = temp(4)
+                APEXFolders(temp(11), temp(10))
+                create_Weather_file(weather_info.name)
+                lblMessage.Text = "Running County => " & county_code & " - SSA => " & ssa_code & " - Soil => " & temp(5)
+                lblMessage.ForeColor = Color.Green
+                mgt = temp(9)
+                params = temp(10)
+                control = temp(11)
+                name = temp(5)
+                component = temp(7)
+                muid = temp(6)
+                slope = temp(8)
+                i = temp(0)  'take the row number from the simulations to put in the individual run.
+                state = temp(2)
 
-                    county_info = CoutyInfo(sSql)
-                    If county_info.lon = 0 And county_info.lat = 0 Then Continue For
-                    weather_info = GetWeatherInfo(county_info.lat, county_info.lon)
-                    ssa_code = .Cells(i, 5).value
-                    APEXFolders(.Cells(i, 12).value, .Cells(i, 11).value)
-                    create_Weather_file(weather_info.name)
-                    lblMessage.Text = "Running County => " & county_code & " - SSA => " & ssa_code & " - Soil => " & .Cells(i, 6).value
-                    lblMessage.ForeColor = Color.Green
-                    mgt = .Cells(i, 10).value
-                    params = .Cells(i, 11).value
-                    control = .Cells(i, 12).value
-                    name = .Cells(i, 6).value
-                    component = .Cells(i, 8).value
-                    muid = .Cells(i, 7).value
-                    slope = .Cells(i, 9).value
-                    i = .Cells(i, 1).value  'take the row number from the simulations to put in the individual run.
-                    state = .Cells(i, 3).value
-                    'releaseObject(wb, 1)
-                    'releaseObject(xlApp, 0)
-                    sSql = "SELECT * FROM " & county_code.Substring(0, 2) & "SOILS WHERE TSSSACode = '" & ssa_code & "' AND TSCountyCode = '" & county_code & "' AND muid = " & muid & " AND seriesname = '" & component & "' ORDER BY [Series], [SeriesName], [ldep]"
-                    soils = service.GetSoilRecord(sSql)
-                    For Each soil In soils.Rows
+
+                sSql = "SELECT * FROM " & county_code.Substring(0, 2) & "SOILS WHERE TSSSACode = '" & ssa_code & "' AND TSCountyCode = '" & county_code & "' AND muid = " & muid & " AND seriesname = '" & component & "' ORDER BY [Series], [SeriesName], [ldep]"
+                soils = service.GetSoilRecord(sSql)
+                For Each soil In soils.Rows
+                    If Not (soils.Rows(j).Item("ldep") Is Nothing Or IsDBNull(soils.Rows(j).Item("ldep"))) Then
                         If depth > soil("ldep") Then
                             layer_number = 0
                             layers = New layer_info
                             swSoil = New StreamWriter(apex_current & "\APEX.sol")
-                            'create subarea
-                            create_subarea_file((soil("slopel") + soil("slopeh")) / 2 / 100)
-                            'copy the operation file one by one from the management list and then run the simulation
-                            copy_management_file(mgt)
                         End If
                         If Not (depth = soil("ldep")) Then
                             depth = soil("ldep")
                             layer_number += 1
-                            create_soils(soil, layer_number)
+                            If layer_number <= 10 Then create_soils(soil, layer_number)
                         End If
-                    Next
-                    print_layers()
-                    swSoil.Close()
-                    'If Not swSoil Is Nothing Then
-                    msg = run_apex(state, county_info.code, ssa_code, name, component, muid, slope, mgt, params, control, i)
-                    'End If
-                    lblMessage.Text = "Simulations finished succesfully"
-                    lblMessage.ForeColor = Color.Green
-                    'Exit Do
-                    'End If
-                    'i += 1
+                    End If
+                    horizgen = soil("horizgen")
                 Next
-            End With
+                print_layers()
+                swSoil.Close()
+                'create subarea
+                create_subarea_file(slope / 100, horizgen)
+                'copy the operation file one by one from the management list and then run the simulation
+                copy_management_file(mgt)
+                msg = run_apex(state, county_info.code, ssa_code, name, component, muid, slope, mgt, params, control, i, horizgen)
+                lblMessage.Text = "Simulations finished succesfully"
+                lblMessage.ForeColor = Color.Green
+                'temp = sr_results.ReadLine.Split("|")
+            Next
 
         Catch ex As Exception
             'if any error send a message.
@@ -2027,24 +2323,22 @@ Public Class Form1
                 swSoil.Dispose()
                 swSoil = Nothing
             End If
-
-            'If Not sw_log Is Nothing Then
-            '    sw_log.Close()
-            '    sw_log.Dispose()
-            '    sw_log = Nothing
-            'End If
-            If clbRuns.CheckedItems.Count > 0 Then SaveFile(Directory.GetCurrentDirectory(), "Results_individual.xls")
+            If Not sw_results Is Nothing Then
+                sw_results.Close()
+                sw_results.Dispose()
+                sw_results = Nothing
+            End If
         End Try
     End Sub
 
-    Public Function Create_wp1_from_weather(loc As String, wp1name As String, pgm As String) As String()
+    Public Sub Create_wp1_from_weather(loc As String, wp1name As String, pgm As String)
         Dim sr As StreamReader = New StreamReader(loc & "\APEX.wth")
         Dim sw As StreamWriter = New StreamWriter(loc & "\" & wp1name.Trim & ".tmp")
         'File.Copy(loc & "\" & wp1name.Trim & ".wp1", loc & "\" & wp1name.Trim & ".wp1", True)
         Dim sr1 As StreamReader = New StreamReader(loc & "\" & wp1name.Trim & ".wp1")
         Dim wthData As WthData
         Dim wthDatas As New List(Of WthData)
-        Dim wthMonthData As WthData
+        Dim wthMonthData As New WthData
         Dim wthMonthDatas As New List(Of WthData)
         Dim temp As String = String.Empty
         Dim maxTemp As Single = 0
@@ -2056,7 +2350,7 @@ Public Class Form1
         Dim month As UShort
         Dim year As UShort
         Dim day As UShort
-        Dim wp1Data As Wp1Data
+        Dim wp1Data As New Wp1Data
         Dim wp1Datas As New List(Of Wp1Data)
         Dim wp1MonSD As New Wp1Data
         Dim wp1MonSDs As New List(Of Wp1Data)
@@ -2273,6 +2567,7 @@ Public Class Form1
             File.Copy(loc & "\" & wp1name.Trim & ".tmp", loc & "\" & wp1name.Trim & ".wp1", True)
         Catch ex As Exception
             Dim msg As String = ex.Message
+
         Finally
             If Not sr Is Nothing Then
                 sr.Close()
@@ -2290,7 +2585,7 @@ Public Class Form1
                 sw = Nothing
             End If
         End Try
-    End Function
+    End Sub
 
     Private Sub chkGrazing_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chkGrazing.CheckedChanged
         If sender.checked Then
@@ -2300,5 +2595,36 @@ Public Class Form1
             txtGrazing.Visible = False
             lblGrazing.Visible = False
         End If
+    End Sub
+
+    Private Sub chk_tile_drain_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chk_tile_drain.CheckedChanged
+        If sender.checked Then
+            txt_tile_drain.Visible = True
+            lbl_tile_drain.Visible = True
+        Else
+            txt_tile_drain.Visible = False
+            lbl_tile_drain.Visible = False
+        End If
+    End Sub
+
+    Private Sub chk_autoirrigation_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles chk_autoirrigation.CheckedChanged
+        If sender.checked Then
+            gb_autoirrigation.Visible = True
+        Else
+            gb_autoirrigation.Visible = False
+        End If
+    End Sub
+
+    Private Sub cb_irrigation_type_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cb_irrigation_type.SelectedIndexChanged
+        Select Case sender.selectedIndex
+            Case 0  'Sprinkler
+                txtEfficiency.Text = 70
+            Case 1  'Furrow/Flood
+                txtEfficiency.Text = 65
+            Case 2  'Drip
+                txtEfficiency.Text = 85
+            Case 3  'Furrow Diking
+                txtEfficiency.Text = 90
+        End Select
     End Sub
 End Class

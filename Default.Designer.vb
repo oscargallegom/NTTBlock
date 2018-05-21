@@ -27,6 +27,23 @@ Partial Class Form1
         Me.btnInitialRun = New System.Windows.Forms.Button()
         Me.btnRuns = New System.Windows.Forms.Button()
         Me.gbInitialRun = New System.Windows.Forms.GroupBox()
+        Me.gb_autoirrigation = New System.Windows.Forms.GroupBox()
+        Me.Label5 = New System.Windows.Forms.Label()
+        Me.txtApplication = New System.Windows.Forms.TextBox()
+        Me.Label4 = New System.Windows.Forms.Label()
+        Me.txtStress = New System.Windows.Forms.TextBox()
+        Me.Label3 = New System.Windows.Forms.Label()
+        Me.txtInterval = New System.Windows.Forms.TextBox()
+        Me.Label2 = New System.Windows.Forms.Label()
+        Me.txtEfficiency = New System.Windows.Forms.TextBox()
+        Me.Label1 = New System.Windows.Forms.Label()
+        Me.cb_irrigation_type = New System.Windows.Forms.ComboBox()
+        Me.chk_autoirrigation = New System.Windows.Forms.CheckBox()
+        Me.txt_tile_drain = New System.Windows.Forms.TextBox()
+        Me.lbl_tile_drain = New System.Windows.Forms.Label()
+        Me.chk_tile_drain = New System.Windows.Forms.CheckBox()
+        Me.txtSoilPercentage = New System.Windows.Forms.TextBox()
+        Me.lblSoilPercentage = New System.Windows.Forms.Label()
         Me.txtGrazing = New System.Windows.Forms.TextBox()
         Me.lblGrazing = New System.Windows.Forms.Label()
         Me.chkGrazing = New System.Windows.Forms.CheckBox()
@@ -48,9 +65,8 @@ Partial Class Form1
         Me.btnSimulation1 = New System.Windows.Forms.Button()
         Me.lblRuns = New System.Windows.Forms.Label()
         Me.clbRuns = New System.Windows.Forms.CheckedListBox()
-        Me.lblSoilPercentage = New System.Windows.Forms.Label()
-        Me.txtSoilPercentage = New System.Windows.Forms.TextBox()
         Me.gbInitialRun.SuspendLayout()
+        Me.gb_autoirrigation.SuspendLayout()
         Me.gbRuns.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -82,6 +98,11 @@ Partial Class Form1
         '
         'gbInitialRun
         '
+        Me.gbInitialRun.Controls.Add(Me.gb_autoirrigation)
+        Me.gbInitialRun.Controls.Add(Me.chk_autoirrigation)
+        Me.gbInitialRun.Controls.Add(Me.txt_tile_drain)
+        Me.gbInitialRun.Controls.Add(Me.lbl_tile_drain)
+        Me.gbInitialRun.Controls.Add(Me.chk_tile_drain)
         Me.gbInitialRun.Controls.Add(Me.txtSoilPercentage)
         Me.gbInitialRun.Controls.Add(Me.lblSoilPercentage)
         Me.gbInitialRun.Controls.Add(Me.txtGrazing)
@@ -108,9 +129,178 @@ Partial Class Form1
         Me.gbInitialRun.TabStop = False
         Me.gbInitialRun.Text = "Initial Runs"
         '
+        'gb_autoirrigation
+        '
+        Me.gb_autoirrigation.Controls.Add(Me.Label5)
+        Me.gb_autoirrigation.Controls.Add(Me.txtApplication)
+        Me.gb_autoirrigation.Controls.Add(Me.Label4)
+        Me.gb_autoirrigation.Controls.Add(Me.txtStress)
+        Me.gb_autoirrigation.Controls.Add(Me.Label3)
+        Me.gb_autoirrigation.Controls.Add(Me.txtInterval)
+        Me.gb_autoirrigation.Controls.Add(Me.Label2)
+        Me.gb_autoirrigation.Controls.Add(Me.txtEfficiency)
+        Me.gb_autoirrigation.Controls.Add(Me.Label1)
+        Me.gb_autoirrigation.Controls.Add(Me.cb_irrigation_type)
+        Me.gb_autoirrigation.Location = New System.Drawing.Point(157, 274)
+        Me.gb_autoirrigation.Name = "gb_autoirrigation"
+        Me.gb_autoirrigation.Size = New System.Drawing.Size(234, 154)
+        Me.gb_autoirrigation.TabIndex = 0
+        Me.gb_autoirrigation.TabStop = False
+        Me.gb_autoirrigation.Visible = False
+        '
+        'Label5
+        '
+        Me.Label5.AutoSize = True
+        Me.Label5.Location = New System.Drawing.Point(6, 126)
+        Me.Label5.Name = "Label5"
+        Me.Label5.Size = New System.Drawing.Size(130, 13)
+        Me.Label5.TabIndex = 56
+        Me.Label5.Text = "Max. Single Appl. (1-15 in)"
+        '
+        'txtApplication
+        '
+        Me.txtApplication.Location = New System.Drawing.Point(160, 123)
+        Me.txtApplication.Name = "txtApplication"
+        Me.txtApplication.Size = New System.Drawing.Size(68, 20)
+        Me.txtApplication.TabIndex = 55
+        Me.txtApplication.Text = "5"
+        Me.txtApplication.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label4
+        '
+        Me.Label4.AutoSize = True
+        Me.Label4.Location = New System.Drawing.Point(6, 100)
+        Me.Label4.Name = "Label4"
+        Me.Label4.Size = New System.Drawing.Size(130, 13)
+        Me.Label4.TabIndex = 54
+        Me.Label4.Text = "Water Stress Level(0-100)"
+        '
+        'txtStress
+        '
+        Me.txtStress.Location = New System.Drawing.Point(160, 97)
+        Me.txtStress.Name = "txtStress"
+        Me.txtStress.Size = New System.Drawing.Size(68, 20)
+        Me.txtStress.TabIndex = 53
+        Me.txtStress.Text = "20"
+        Me.txtStress.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label3
+        '
+        Me.Label3.AutoSize = True
+        Me.Label3.Location = New System.Drawing.Point(5, 73)
+        Me.Label3.Name = "Label3"
+        Me.Label3.Size = New System.Drawing.Size(105, 13)
+        Me.Label3.TabIndex = 52
+        Me.Label3.Text = "Interval (Days 0-365)"
+        '
+        'txtInterval
+        '
+        Me.txtInterval.Location = New System.Drawing.Point(159, 70)
+        Me.txtInterval.Name = "txtInterval"
+        Me.txtInterval.Size = New System.Drawing.Size(68, 20)
+        Me.txtInterval.TabIndex = 51
+        Me.txtInterval.Text = "1"
+        Me.txtInterval.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label2
+        '
+        Me.Label2.AutoSize = True
+        Me.Label2.Location = New System.Drawing.Point(5, 47)
+        Me.Label2.Name = "Label2"
+        Me.Label2.Size = New System.Drawing.Size(103, 13)
+        Me.Label2.TabIndex = 50
+        Me.Label2.Text = "Efficiency (0 - 100%)"
+        '
+        'txtEfficiency
+        '
+        Me.txtEfficiency.Location = New System.Drawing.Point(159, 44)
+        Me.txtEfficiency.Name = "txtEfficiency"
+        Me.txtEfficiency.Size = New System.Drawing.Size(68, 20)
+        Me.txtEfficiency.TabIndex = 49
+        Me.txtEfficiency.Text = "70"
+        Me.txtEfficiency.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(6, 20)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(31, 13)
+        Me.Label1.TabIndex = 48
+        Me.Label1.Text = "Type"
+        '
+        'cb_irrigation_type
+        '
+        Me.cb_irrigation_type.FormattingEnabled = True
+        Me.cb_irrigation_type.Items.AddRange(New Object() {"Sprinkler", "Furrow/Flood", "Drip", "Furrow Diking"})
+        Me.cb_irrigation_type.Location = New System.Drawing.Point(104, 17)
+        Me.cb_irrigation_type.Name = "cb_irrigation_type"
+        Me.cb_irrigation_type.Size = New System.Drawing.Size(125, 21)
+        Me.cb_irrigation_type.TabIndex = 47
+        '
+        'chk_autoirrigation
+        '
+        Me.chk_autoirrigation.AllowDrop = True
+        Me.chk_autoirrigation.AutoSize = True
+        Me.chk_autoirrigation.Location = New System.Drawing.Point(154, 261)
+        Me.chk_autoirrigation.Name = "chk_autoirrigation"
+        Me.chk_autoirrigation.Size = New System.Drawing.Size(93, 17)
+        Me.chk_autoirrigation.TabIndex = 36
+        Me.chk_autoirrigation.Text = "Autoirrigation?"
+        Me.chk_autoirrigation.UseVisualStyleBackColor = True
+        '
+        'txt_tile_drain
+        '
+        Me.txt_tile_drain.Location = New System.Drawing.Point(321, 237)
+        Me.txt_tile_drain.Name = "txt_tile_drain"
+        Me.txt_tile_drain.Size = New System.Drawing.Size(68, 20)
+        Me.txt_tile_drain.TabIndex = 35
+        Me.txt_tile_drain.Text = "1000"
+        Me.txt_tile_drain.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        Me.txt_tile_drain.Visible = False
+        '
+        'lbl_tile_drain
+        '
+        Me.lbl_tile_drain.AutoSize = True
+        Me.lbl_tile_drain.Location = New System.Drawing.Point(237, 240)
+        Me.lbl_tile_drain.Name = "lbl_tile_drain"
+        Me.lbl_tile_drain.Size = New System.Drawing.Size(78, 13)
+        Me.lbl_tile_drain.TabIndex = 34
+        Me.lbl_tile_drain.Text = "Tile Depth(mm)"
+        Me.lbl_tile_drain.Visible = False
+        '
+        'chk_tile_drain
+        '
+        Me.chk_tile_drain.AllowDrop = True
+        Me.chk_tile_drain.AutoSize = True
+        Me.chk_tile_drain.Location = New System.Drawing.Point(154, 237)
+        Me.chk_tile_drain.Name = "chk_tile_drain"
+        Me.chk_tile_drain.Size = New System.Drawing.Size(77, 17)
+        Me.chk_tile_drain.TabIndex = 33
+        Me.chk_tile_drain.Text = "Tile Drain?"
+        Me.chk_tile_drain.UseVisualStyleBackColor = True
+        '
+        'txtSoilPercentage
+        '
+        Me.txtSoilPercentage.Location = New System.Drawing.Point(321, 184)
+        Me.txtSoilPercentage.Name = "txtSoilPercentage"
+        Me.txtSoilPercentage.Size = New System.Drawing.Size(68, 20)
+        Me.txtSoilPercentage.TabIndex = 32
+        Me.txtSoilPercentage.Text = "100"
+        Me.txtSoilPercentage.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'lblSoilPercentage
+        '
+        Me.lblSoilPercentage.AutoSize = True
+        Me.lblSoilPercentage.Location = New System.Drawing.Point(152, 184)
+        Me.lblSoilPercentage.Name = "lblSoilPercentage"
+        Me.lblSoilPercentage.Size = New System.Drawing.Size(131, 13)
+        Me.lblSoilPercentage.TabIndex = 31
+        Me.lblSoilPercentage.Text = "Soil Percentage to Upload"
+        '
         'txtGrazing
         '
-        Me.txtGrazing.Location = New System.Drawing.Point(321, 198)
+        Me.txtGrazing.Location = New System.Drawing.Point(321, 210)
         Me.txtGrazing.Name = "txtGrazing"
         Me.txtGrazing.Size = New System.Drawing.Size(68, 20)
         Me.txtGrazing.TabIndex = 30
@@ -121,7 +311,7 @@ Partial Class Form1
         'lblGrazing
         '
         Me.lblGrazing.AutoSize = True
-        Me.lblGrazing.Location = New System.Drawing.Point(225, 202)
+        Me.lblGrazing.Location = New System.Drawing.Point(225, 214)
         Me.lblGrazing.Name = "lblGrazing"
         Me.lblGrazing.Size = New System.Drawing.Size(93, 13)
         Me.lblGrazing.TabIndex = 29
@@ -131,7 +321,7 @@ Partial Class Form1
         'chkGrazing
         '
         Me.chkGrazing.AutoSize = True
-        Me.chkGrazing.Location = New System.Drawing.Point(155, 201)
+        Me.chkGrazing.Location = New System.Drawing.Point(155, 213)
         Me.chkGrazing.Name = "chkGrazing"
         Me.chkGrazing.Size = New System.Drawing.Size(68, 17)
         Me.chkGrazing.TabIndex = 28
@@ -140,7 +330,7 @@ Partial Class Form1
         '
         'txtSoilP
         '
-        Me.txtSoilP.Location = New System.Drawing.Point(323, 164)
+        Me.txtSoilP.Location = New System.Drawing.Point(323, 158)
         Me.txtSoilP.Name = "txtSoilP"
         Me.txtSoilP.Size = New System.Drawing.Size(68, 20)
         Me.txtSoilP.TabIndex = 27
@@ -150,7 +340,7 @@ Partial Class Form1
         'lblSoilP
         '
         Me.lblSoilP.AutoSize = True
-        Me.lblSoilP.Location = New System.Drawing.Point(152, 167)
+        Me.lblSoilP.Location = New System.Drawing.Point(152, 161)
         Me.lblSoilP.Name = "lblSoilP"
         Me.lblSoilP.Size = New System.Drawing.Size(62, 13)
         Me.lblSoilP.TabIndex = 26
@@ -158,7 +348,7 @@ Partial Class Form1
         '
         'txtMaxSlope
         '
-        Me.txtMaxSlope.Location = New System.Drawing.Point(323, 135)
+        Me.txtMaxSlope.Location = New System.Drawing.Point(323, 132)
         Me.txtMaxSlope.Name = "txtMaxSlope"
         Me.txtMaxSlope.Size = New System.Drawing.Size(68, 20)
         Me.txtMaxSlope.TabIndex = 25
@@ -168,7 +358,7 @@ Partial Class Form1
         'lblMaxSlope
         '
         Me.lblMaxSlope.AutoSize = True
-        Me.lblMaxSlope.Location = New System.Drawing.Point(152, 135)
+        Me.lblMaxSlope.Location = New System.Drawing.Point(152, 132)
         Me.lblMaxSlope.Name = "lblMaxSlope"
         Me.lblMaxSlope.Size = New System.Drawing.Size(108, 13)
         Me.lblMaxSlope.TabIndex = 24
@@ -301,24 +491,6 @@ Partial Class Form1
         Me.clbRuns.Size = New System.Drawing.Size(144, 454)
         Me.clbRuns.TabIndex = 24
         '
-        'lblSoilPercentage
-        '
-        Me.lblSoilPercentage.AutoSize = True
-        Me.lblSoilPercentage.Location = New System.Drawing.Point(152, 235)
-        Me.lblSoilPercentage.Name = "lblSoilPercentage"
-        Me.lblSoilPercentage.Size = New System.Drawing.Size(131, 13)
-        Me.lblSoilPercentage.TabIndex = 31
-        Me.lblSoilPercentage.Text = "Soil Percentage to Upload"
-        '
-        'txtSoilPercentage
-        '
-        Me.txtSoilPercentage.Location = New System.Drawing.Point(321, 235)
-        Me.txtSoilPercentage.Name = "txtSoilPercentage"
-        Me.txtSoilPercentage.Size = New System.Drawing.Size(68, 20)
-        Me.txtSoilPercentage.TabIndex = 32
-        Me.txtSoilPercentage.Text = "100"
-        Me.txtSoilPercentage.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
-        '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -334,6 +506,8 @@ Partial Class Form1
         Me.Text = "Form1"
         Me.gbInitialRun.ResumeLayout(False)
         Me.gbInitialRun.PerformLayout()
+        Me.gb_autoirrigation.ResumeLayout(False)
+        Me.gb_autoirrigation.PerformLayout()
         Me.gbRuns.ResumeLayout(False)
         Me.gbRuns.PerformLayout()
         Me.ResumeLayout(False)
@@ -367,5 +541,20 @@ Partial Class Form1
     Friend WithEvents chkGrazing As System.Windows.Forms.CheckBox
     Friend WithEvents txtSoilPercentage As System.Windows.Forms.TextBox
     Friend WithEvents lblSoilPercentage As System.Windows.Forms.Label
+    Friend WithEvents chk_tile_drain As System.Windows.Forms.CheckBox
+    Friend WithEvents txt_tile_drain As System.Windows.Forms.TextBox
+    Friend WithEvents lbl_tile_drain As System.Windows.Forms.Label
+    Friend WithEvents gb_autoirrigation As System.Windows.Forms.GroupBox
+    Friend WithEvents Label5 As System.Windows.Forms.Label
+    Friend WithEvents txtApplication As System.Windows.Forms.TextBox
+    Friend WithEvents Label4 As System.Windows.Forms.Label
+    Friend WithEvents txtStress As System.Windows.Forms.TextBox
+    Friend WithEvents Label3 As System.Windows.Forms.Label
+    Friend WithEvents txtInterval As System.Windows.Forms.TextBox
+    Friend WithEvents Label2 As System.Windows.Forms.Label
+    Friend WithEvents txtEfficiency As System.Windows.Forms.TextBox
+    Friend WithEvents Label1 As System.Windows.Forms.Label
+    Friend WithEvents cb_irrigation_type As System.Windows.Forms.ComboBox
+    Friend WithEvents chk_autoirrigation As System.Windows.Forms.CheckBox
 
 End Class
